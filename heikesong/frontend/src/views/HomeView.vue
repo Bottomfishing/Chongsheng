@@ -215,40 +215,74 @@
         <header class="top-bar">
           <div class="logo">
             <span class="logo-icon">&#10022;</span>
-            <span class="logo-text">重生小卖部</span>
+            <span class="logo-text">重生者手册</span>
           </div>
           <div class="date-display">1995年5月16日</div>
         </header>
 
         <main class="main-content">
-          <div class="welcome-section">
-            <h2 class="welcome-title">欢迎回来，重生者</h2>
-            <p class="welcome-sub">今天是你在九十年代的第 1 天</p>
-          </div>
+          <div class="hub-container">
+            <header class="welcome-section">
+              <p class="welcome-kicker">1995 · 重生档案已同步</p>
+              <h2 class="welcome-title">欢迎回来，重生者</h2>
+              <p class="welcome-sub">今天是你在九十年代的第 1 天</p>
+            </header>
 
-          <div class="card-grid">
+            <section class="hub-section" aria-label="功能入口">
+              <div class="section-head">
+                <span class="section-line" />
+                <h3 class="section-label">功能入口</h3>
+                <span class="section-line" />
+              </div>
+
+              <div class="card-grid">
             <button
               class="feature-card primary"
               type="button"
               @click="startGame"
             >
-              <div class="card-icon">&#9654;</div>
-              <h3 class="card-title">剧情模式</h3>
-              <p class="card-desc">
-                继续你的重生之旅，每一次选择都会改写这场九十年代实验。
-              </p>
-              <div class="card-status">
-                <span class="status-dot active" />
-                <span>主线入口：短视频主剧情</span>
+              <div class="primary-icon-wrap">
+                <span class="card-icon">&#9654;</span>
               </div>
+              <div class="primary-body">
+                <div class="primary-head">
+                  <h3 class="card-title">剧情模式</h3>
+                  <span class="status-badge">
+                    <span class="status-dot active" />
+                    可游玩
+                  </span>
+                </div>
+                <p class="card-desc">
+                  继续你的重生之旅，每一次选择都会改写这场九十年代实验。
+                </p>
+                <p class="card-hint">主线入口 · 短视频主剧情</p>
+              </div>
+              <span class="primary-arrow" aria-hidden="true">&#8250;</span>
             </button>
 
             <button
-              class="feature-card"
+              class="feature-card card-soul"
+              type="button"
+              @click="goSoulTalk"
+            >
+              <div class="card-icon-wrap">
+                <span class="card-icon">&#9825;</span>
+              </div>
+              <h3 class="card-title">心灵倾述</h3>
+              <p class="card-desc">
+                与牛天真、李天佐、费启暗、阿宁四位伙伴倾诉，每位性格迥异。
+              </p>
+              <div class="card-tag card-tag-live">进入倾诉</div>
+            </button>
+
+            <button
+              class="feature-card card-album"
               type="button"
               @click="showComingSoon('时光相册')"
             >
-              <div class="card-icon">&#10022;</div>
+              <div class="card-icon-wrap">
+                <span class="card-icon">&#10022;</span>
+              </div>
               <h3 class="card-title">时光相册</h3>
               <p class="card-desc">
                 记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。
@@ -257,33 +291,23 @@
             </button>
 
             <button
-              class="feature-card"
-              type="button"
-              @click="showComingSoon('重生商店')"
-            >
-              <div class="card-icon">&#9733;</div>
-              <h3 class="card-title">重生商店</h3>
-              <p class="card-desc">
-                用你的选择结果兑换时代 Buff，让下一次重生更离谱一点。
-              </p>
-              <div class="card-tag">即将开放</div>
-            </button>
-
-            <button
-              class="feature-card"
+              class="feature-card card-achievement"
               type="button"
               @click="showComingSoon('成就墙')"
             >
-              <div class="card-icon">&#9670;</div>
+              <div class="card-icon-wrap">
+                <span class="card-icon">&#9670;</span>
+              </div>
               <h3 class="card-title">成就墙</h3>
               <p class="card-desc">
                 解锁“村口第一网红”“录像厅顶流”“县城直播先驱”等时代成就。
               </p>
               <div class="card-tag">即将开放</div>
             </button>
-          </div>
+              </div>
+            </section>
 
-          <div class="bottom-info">
+            <section class="bottom-info" aria-label="重生数据">
             <div class="info-item">
               <span class="info-label">重生积分</span>
               <span class="info-value">0</span>
@@ -298,6 +322,7 @@
               <span class="info-label">探索度</span>
               <span class="info-value">0%</span>
             </div>
+            </section>
           </div>
         </main>
 
@@ -521,6 +546,10 @@ function enterHome() {
 
 function startGame() {
   router.push("/play");
+}
+
+function goSoulTalk() {
+  router.push("/soul-talk");
 }
 
 function resumeGame() {
@@ -1388,6 +1417,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   background: #faf8f5;
+  --hub-pad-x: clamp(4.5rem, 7vw, 5.5rem);
 }
 
 .top-bar {
@@ -1396,7 +1426,7 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: 1rem var(--hub-pad-x);
   border-bottom: 1px solid rgba(201, 169, 110, 0.3);
 }
 
@@ -1432,47 +1462,98 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 2rem;
+  justify-content: center;
+  padding: 1.25rem var(--hub-pad-x) 1.5rem;
   overflow-y: auto;
+}
+
+.hub-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 800px;
 }
 
 .welcome-section {
   text-align: center;
 }
 
-.welcome-title {
+.welcome-kicker {
   margin: 0 0 0.5rem;
+  color: #b8924a;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.welcome-title {
+  margin: 0 0 0.35rem;
   color: #3d2914;
-  font-size: 1.5rem;
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
   font-weight: 400;
-  letter-spacing: 4px;
+  letter-spacing: 0.22em;
 }
 
 .welcome-sub {
   margin: 0;
   color: #8b7355;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+}
+
+.hub-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 110, 0.55), transparent);
+}
+
+.section-label {
+  margin: 0;
+  color: #8b7355;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  white-space: nowrap;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
   width: 100%;
-  max-width: 700px;
 }
 
 .feature-card {
   position: relative;
   overflow: hidden;
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 168px;
+  padding: 1.1rem 0.9rem 1rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(201, 169, 110, 0.3);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(201, 169, 110, 0.32);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(61, 41, 20, 0.04);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .feature-card:hover {
@@ -1481,17 +1562,150 @@ defineExpose({
   box-shadow: 0 8px 24px rgba(61, 41, 20, 0.1);
 }
 
+.feature-card:not(.primary) {
+  overflow: visible;
+  padding: 3.2rem 2rem 2.6rem;
+  background: transparent url(/images/border-frame.png) center / 145% auto no-repeat;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 240px;
+}
+
+.feature-card:not(.primary):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(61, 41, 20, 0.1);
+}
+
 .feature-card.primary {
-  background: rgba(201, 169, 110, 0.08);
-  border-color: #c9a96e;
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  min-height: auto;
+  padding: 1.1rem 1.25rem;
+  text-align: left;
+  background: linear-gradient(
+    120deg,
+    rgba(201, 169, 110, 0.18) 0%,
+    rgba(255, 252, 247, 0.96) 55%
+  );
+  border-color: rgba(201, 169, 110, 0.75);
+  box-shadow: 0 4px 20px rgba(61, 41, 20, 0.07);
 }
 
 .feature-card.primary:hover {
-  background: rgba(201, 169, 110, 0.15);
+  background: linear-gradient(
+    120deg,
+    rgba(201, 169, 110, 0.26) 0%,
+    rgba(255, 252, 247, 1) 55%
+  );
+  box-shadow: 0 8px 28px rgba(61, 41, 20, 0.1);
+}
+
+.primary-icon-wrap {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(201, 169, 110, 0.55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+.primary-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.primary-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  color: #4a7c59;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  background: rgba(46, 139, 87, 0.1);
+  border: 1px solid rgba(46, 139, 87, 0.22);
+  border-radius: 999px;
+}
+
+.feature-card.primary .card-desc {
+  margin-bottom: 0.35rem;
+}
+
+.card-hint {
+  margin: 0;
+  color: #a08060;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.primary-arrow {
+  flex-shrink: 0;
+  color: #c9a96e;
+  font-size: 2rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.feature-card.primary:hover .primary-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.card-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0.55rem;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.card-icon-wrap .card-icon {
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+.card-soul {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 248, 245, 0.95) 0%,
+    rgba(255, 255, 255, 0.75) 100%
+  );
+}
+
+.card-soul .card-icon {
+  color: #a86b5a;
+}
+
+.card-album .card-icon {
+  color: #b8924a;
+}
+
+.card-achievement .card-icon {
+  color: #7a8b5a;
 }
 
 .card-icon {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
   color: #c9a96e;
   font-size: 1.5rem;
 }
@@ -1510,19 +1724,15 @@ defineExpose({
 }
 
 .card-desc {
-  margin: 0 0 0.75rem;
+  flex: 1;
+  margin: 0 0 0.65rem;
   color: #8b7355;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
-.card-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  color: #5c4033;
-  font-size: 0.75rem;
+.feature-card:not(.primary) .card-desc {
+  min-height: 2.4em;
 }
 
 .status-dot {
@@ -1549,23 +1759,31 @@ defineExpose({
 }
 
 .card-tag {
+  margin-top: auto;
   display: inline-block;
-  padding: 0.2rem 0.6rem;
+  padding: 0.22rem 0.65rem;
   color: #8b7355;
-  font-size: 0.7rem;
-  letter-spacing: 1px;
-  background: rgba(139, 115, 85, 0.1);
-  border-radius: 2px;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  background: rgba(139, 115, 85, 0.08);
+  border: 1px solid rgba(139, 115, 85, 0.15);
+  border-radius: 999px;
+}
+
+.card-tag-live {
+  color: #4a7c59;
+  background: rgba(46, 139, 87, 0.1);
+  border-color: rgba(46, 139, 87, 0.22);
 }
 
 .bottom-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 1rem 2rem;
-  border-top: 1px solid rgba(201, 169, 110, 0.2);
-  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(201, 169, 110, 0.22);
+  border-radius: 8px;
 }
 
 .info-item {
@@ -1588,9 +1806,7 @@ defineExpose({
 }
 
 .info-divider {
-  width: 1px;
-  height: 30px;
-  background: rgba(201, 169, 110, 0.3);
+  display: none;
 }
 
 .footer-menu {
@@ -1598,6 +1814,9 @@ defineExpose({
   z-index: 1;
   display: flex;
   justify-content: center;
+  max-width: 100%;
+  margin: 0;
+  padding-inline: var(--hub-pad-x);
   border-top: 1px solid rgba(201, 169, 110, 0.3);
 }
 
@@ -1661,18 +1880,53 @@ defineExpose({
   opacity: 0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
+  .home-page {
+    --hub-pad-x: 1.25rem;
+  }
+
   .card-grid {
     grid-template-columns: 1fr;
   }
 
+  .feature-card:not(.primary) {
+    min-height: auto;
+  }
+
+  .feature-card.primary {
+    flex-wrap: wrap;
+    text-align: left;
+  }
+
+  .primary-arrow {
+    display: none;
+  }
+
   .bottom-info {
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .info-item {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(201, 169, 110, 0.12);
+  }
+
+  .info-item:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .welcome-title {
+    letter-spacing: 0.12em;
   }
 
   .info-value {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 }
 </style>

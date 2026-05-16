@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import PlayerView from "@/views/PlayerView.vue";
+import SoulTalkView from "@/views/SoulTalkView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: "/play",
       name: "play",
       component: PlayerView,
+    },
+    {
+      path: "/soul-talk",
+      name: "soul-talk",
+      component: SoulTalkView,
     },
   ],
 });
