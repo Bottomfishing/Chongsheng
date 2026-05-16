@@ -1,9 +1,23 @@
 <template>
-  <div class="home-flow">
+  <div class="home-flow" :class="{ 'page-shaking': pageShaking }">
     <Transition name="fade">
       <section v-if="stage === 'landing'" class="landing-page">
         <div class="paper-bg" />
         <div class="grain-overlay" />
+
+        <!-- 浮动粒子背景 -->
+        <div class="particle-layer">
+          <div v-for="n in 20" :key="n" class="particle" :class="`p-${n}`" />
+        </div>
+
+        <!-- 鼠标跟随光斑 -->
+        <div
+          class="cursor-glow"
+          :style="{
+            left: `${cursorX}px`,
+            top: `${cursorY}px`,
+          }"
+        />
 
         <div class="frame-corner tl" />
         <div class="frame-corner tr" />
@@ -11,61 +25,59 @@
         <div class="frame-corner br" />
 
         <div class="content">
-          <div class="stamp">
+          <div class="stamp enter-anim" style="--delay: 0.1s">
             <div class="stamp-circle">
-              <span class="stamp-text">重生认证</span>
+              <span class="stamp-text">顶流企划</span>
             </div>
           </div>
 
-          <div class="title-area">
+          <div class="title-area enter-anim" style="--delay: 0.25s">
             <div class="deco-line top">
               <span class="ornament">&#10022;</span>
             </div>
             <h1 class="main-title">
-              <span class="title-line">重生之</span>
-              <span class="title-line accent">回到九十年代</span>
-              <span class="title-line">玩抖音</span>
+              <span class="title-line">重生之我在</span>
+              <span class="title-line accent">抖音当顶流</span>
             </h1>
             <div class="deco-line bottom">
               <span class="ornament">&#10022;</span>
             </div>
           </div>
 
-          <p class="tagline">"如果九十年代的你，突然拥有了抖音......"</p>
+          <p class="tagline enter-anim" style="--delay: 0.45s">
+            "2016复古校园风 · 青涩治愈 + 逆袭爽感 · 轻恋爱 + 事业养成"
+          </p>
 
-          <div class="desc-box">
-            <p class="typewriter">
-              {{ displayedText }}<span v-if="showCursor" class="cursor">|</span>
+          <div class="desc-card enter-anim" style="--delay: 0.6s">
+            <p class="desc-text typewriter-desc">
+              {{ descDisplayed
+              }}<span v-if="descCursorVisible" class="type-cursor">|</span>
             </p>
           </div>
 
-          <div class="action-area">
+          <div class="action-area enter-anim" style="--delay: 0.8s">
             <button
-              class="start-btn"
+              ref="startBtn"
+              class="start-btn glow-btn"
               type="button"
-              :disabled="!typewriterDone"
+              @mousemove="handleStartBtnMove"
+              @mouseleave="handleStartBtnLeave"
               @click="enterIntro"
             >
               <span class="btn-border">
                 <span class="btn-inner">
                   <span class="btn-icon">&#9654;</span>
-                  <span>{{
-                    typewriterDone ? "开始重生" : "系统加载中..."
-                  }}</span>
+                  <span>开启重生企划</span>
                 </span>
               </span>
             </button>
           </div>
 
-          <div class="bottom-menu">
-            <button class="menu-link" type="button" @click="resumeGame">
-              <span class="link-dot" />
-              读取存档
-            </button>
-            <span class="link-sep">&#10022;</span>
-            <button class="menu-link" type="button" @click="showAbout = true">
-              <span class="link-dot" />
-              关于重生
+          <div class="bottom-menu enter-anim" style="--delay: 0.95s">
+            <span class="menu-item">&#8226; 读取存档</span>
+            <span class="menu-sep">&#183;</span>
+            <button class="menu-item" type="button" @click="showAbout = true">
+              &#8226; 关于重生
             </button>
           </div>
         </div>
@@ -111,29 +123,66 @@
     </Transition>
 
     <Transition name="fade">
-      <section v-if="stage === 'intro'" class="intro-video">
+      <section
+        v-if="stage === 'intro'"
+        class="intro-video"
+        :class="{ shattered: screenShattered, warping: warpActive }"
+      >
+        <!-- 全屏碎裂覆盖层（视频播放时不显示） -->
+        <div
+          v-if="screenShattered && scene !== 'video'"
+          class="shatter-overlay"
+        >
+          <div
+            v-for="n in 12"
+            :key="n"
+            class="shatter-piece"
+            :class="`piece-${n}`"
+          />
+        </div>
+
+        <!-- 时空扭曲覆盖层（视频播放时不显示） -->
+        <div v-if="warpActive && scene !== 'video'" class="warp-overlay">
+          <div class="warp-ring" />
+          <div class="warp-ring delay-1" />
+          <div class="warp-ring delay-2" />
+          <div class="warp-vortex" />
+        </div>
+
         <div v-if="scene === 'static'" class="tv-static">
-          <div class="tv-frame">
-            <div class="tv-antennas">
-              <div class="antenna left">
+          <div
+            class="tv-frame"
+            :class="{ breaking: tvBrokenAnimating, broken: tvBroken }"
+            @click="breakTv"
+          >
+            <div v-if="tvBroken" class="tv-crack crack-1" />
+            <div v-if="tvBroken" class="tv-crack crack-2" />
+            <div v-if="tvBroken" class="tv-crack crack-3" />
+            <div class="tv-antennas" :class="{ broken: tvBroken }">
+              <div class="antenna left" :class="{ droop: tvBroken }">
                 <div class="antenna-base" />
                 <div class="antenna-rod" />
                 <div class="antenna-coil" />
               </div>
-              <div class="antenna right">
+              <div class="antenna right" :class="{ droop: tvBroken }">
                 <div class="antenna-base" />
                 <div class="antenna-rod" />
                 <div class="antenna-coil" />
               </div>
             </div>
-            <div class="tv-brand">重生牌</div>
-            <div class="tv-screen-bezel">
-              <canvas ref="staticCanvas" class="static-canvas" />
-              <div class="scanlines" />
-              <div class="screen-glow" />
-              <div class="screen-reflection" />
+            <div class="tv-brand" :class="{ broken: tvBroken }">重生牌</div>
+            <div class="tv-screen-bezel" :class="{ broken: tvBroken }">
+              <canvas
+                ref="staticCanvas"
+                class="static-canvas"
+                :class="{ off: tvBroken }"
+              />
+              <div v-if="!tvBroken" class="scanlines" />
+              <div v-if="!tvBroken" class="screen-glow" />
+              <div v-if="!tvBroken" class="screen-reflection" />
+              <div v-if="tvBroken" class="screen-off" />
             </div>
-            <div class="tv-controls">
+            <div class="tv-controls" :class="{ broken: tvBroken }">
               <div class="knob">
                 <div class="knob-indicator" />
               </div>
@@ -144,13 +193,14 @@
                 <span v-for="n in 6" :key="n" class="grill-line" />
               </div>
             </div>
-            <div class="tv-feet">
+            <div class="tv-feet" :class="{ broken: tvBroken }">
               <div class="foot left" />
               <div class="foot right" />
             </div>
           </div>
-          <div class="status-text">信号接入中...</div>
-          <div class="signal-indicator">
+          <div v-if="!tvBroken" class="status-text">信号接入中...</div>
+          <div v-else class="status-text broken-text">电视已被砸碎</div>
+          <div v-if="!tvBroken" class="signal-indicator">
             <span
               v-for="n in 5"
               :key="n"
@@ -178,11 +228,16 @@
           <div class="film-grain" />
         </div>
 
-        <div v-if="scene === 'countdown'" class="countdown-scene">
-          <div class="countdown-circle">
-            <span class="countdown-num">{{ countdownNum }}</span>
-          </div>
-          <p class="countdown-hint">即将进入九十年代...</p>
+        <div v-if="scene === 'video'" class="video-scene">
+          <video
+            ref="introVideo"
+            class="intro-video-player"
+            src="/videos/娱乐新闻.mp4"
+            autoplay
+            playsinline
+            @timeupdate="onVideoProgress"
+            @ended="enterHome"
+          />
         </div>
 
         <Transition name="fade">
@@ -197,7 +252,13 @@
         </Transition>
 
         <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: `${progress}%` }" />
+          <div class="progress-track">
+            <div class="progress-fill" :style="{ width: `${progress}%` }" />
+          </div>
+          <div class="progress-hint">
+            <span class="progress-label">{{ progressLabel }}</span>
+            <span class="progress-percent">{{ Math.round(progress) }}%</span>
+          </div>
         </div>
       </section>
     </Transition>
@@ -236,92 +297,99 @@
               </div>
 
               <div class="card-grid">
-            <button
-              class="feature-card primary"
-              type="button"
-              @click="startGame"
-            >
-              <div class="primary-icon-wrap">
-                <span class="card-icon">&#9654;</span>
-              </div>
-              <div class="primary-body">
-                <div class="primary-head">
-                  <h3 class="card-title">剧情模式</h3>
-                  <span class="status-badge">
-                    <span class="status-dot active" />
-                    可游玩
-                  </span>
-                </div>
-                <p class="card-desc">
-                  继续你的重生之旅，每一次选择都会改写这场九十年代实验。
-                </p>
-                <p class="card-hint">主线入口 · 短视频主剧情</p>
-              </div>
-              <span class="primary-arrow" aria-hidden="true">&#8250;</span>
-            </button>
+                <button
+                  class="feature-card primary"
+                  type="button"
+                  @mousemove="handleCardMove"
+                  @mouseleave="handleCardLeave"
+                  @click="startGame"
+                >
+                  <div class="primary-icon-wrap">
+                    <span class="card-icon">&#9654;</span>
+                  </div>
+                  <div class="primary-body">
+                    <div class="primary-head">
+                      <h3 class="card-title">剧情模式</h3>
+                      <span class="status-badge">
+                        <span class="status-dot active" />
+                        可游玩
+                      </span>
+                    </div>
+                    <p class="card-desc">
+                      继续你的重生之旅，每一次选择都会改写这场九十年代实验。
+                    </p>
+                    <p class="card-hint">主线入口 · 短视频主剧情</p>
+                  </div>
+                  <span class="primary-arrow" aria-hidden="true">&#8250;</span>
+                </button>
 
-            <button
-              class="feature-card card-soul"
-              type="button"
-              @click="goSoulTalk"
-            >
-              <div class="card-icon-wrap">
-                <span class="card-icon">&#9825;</span>
-              </div>
-              <h3 class="card-title">心灵倾述</h3>
-              <p class="card-desc">
-                与牛天真、李天佐、费启暗、阿宁四位伙伴倾诉，每位性格迥异。
-              </p>
-              <div class="card-tag card-tag-live">进入倾诉</div>
-            </button>
+                <button
+                  class="feature-card card-soul"
+                  type="button"
+                  @mousemove="handleCardMove"
+                  @mouseleave="handleCardLeave"
+                  @click="goSoulTalk"
+                >
+                  <div class="card-content">
+                    <h3 class="card-title">心灵倾述</h3>
+                    <p class="card-desc">
+                      与牛天真、李天佐、费启暗、阿宁四位伙伴倾诉，每位性格迥异。
+                    </p>
+                    <div class="card-tag card-tag-live">进入倾诉</div>
+                  </div>
+                </button>
 
-            <button
-              class="feature-card card-album"
-              type="button"
-              @click="showComingSoon('时光相册')"
-            >
-              <div class="card-icon-wrap">
-                <span class="card-icon">&#10022;</span>
-              </div>
-              <h3 class="card-title">时光相册</h3>
-              <p class="card-desc">
-                记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。
-              </p>
-              <div class="card-tag">即将开放</div>
-            </button>
+                <button
+                  class="feature-card card-album"
+                  type="button"
+                  @mousemove="handleCardMove"
+                  @mouseleave="handleCardLeave"
+                  @click="showComingSoon('时光相册')"
+                >
+                  <div class="card-content">
+                    <h3 class="card-title">时光相册</h3>
+                    <p class="card-desc">
+                      记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。
+                    </p>
+                    <div class="card-tag">即将开放</div>
+                  </div>
+                </button>
 
-            <button
-              class="feature-card card-achievement"
-              type="button"
-              @click="showComingSoon('成就墙')"
-            >
-              <div class="card-icon-wrap">
-                <span class="card-icon">&#9670;</span>
-              </div>
-              <h3 class="card-title">成就墙</h3>
-              <p class="card-desc">
-                解锁“村口第一网红”“录像厅顶流”“县城直播先驱”等时代成就。
-              </p>
-              <div class="card-tag">即将开放</div>
-            </button>
+                <button
+                  class="feature-card card-achievement"
+                  type="button"
+                  @mousemove="handleCardMove"
+                  @mouseleave="handleCardLeave"
+                  @click="showComingSoon('成就墙')"
+                >
+                  <div class="card-content">
+                    <h3 class="card-title">成就墙</h3>
+                    <p class="card-desc">
+                      解锁"村口第一网红""录像厅顶流""县城直播先驱"等时代成就。
+                    </p>
+                    <div class="card-tag">即将开放</div>
+                  </div>
+                </button>
               </div>
             </section>
 
             <section class="bottom-info" aria-label="重生数据">
-            <div class="info-item">
-              <span class="info-label">重生积分</span>
-              <span class="info-value">0</span>
-            </div>
-            <div class="info-divider" />
-            <div class="info-item">
-              <span class="info-label">已解锁结局</span>
-              <span class="info-value">0/6</span>
-            </div>
-            <div class="info-divider" />
-            <div class="info-item">
-              <span class="info-label">探索度</span>
-              <span class="info-value">0%</span>
-            </div>
+              <div class="info-item">
+                <span class="info-label">重生积分</span>
+                <span class="info-value">0</span>
+              </div>
+              <div class="info-divider" />
+              <div class="info-item">
+                <span class="info-label">已解锁成就</span>
+                <span class="info-value"
+                  >{{ getUnlockedCount() }}/{{ ACHIEVEMENTS.length }}</span
+                >
+              </div>
+              <div class="info-divider" />
+              <div class="info-item">
+                <span class="info-label">探索度</span>
+                <span class="info-value">0%</span>
+              </div>
             </section>
           </div>
         </main>
@@ -366,16 +434,79 @@
         </Transition>
       </section>
     </Transition>
+
+    <!-- 成就解锁提示 -->
+    <Transition name="achievement-toast">
+      <div
+        v-if="showAchievementToast && achievementToast"
+        class="achievement-toast"
+        @click="dismissAchievementToast"
+      >
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-body">
+          <div class="achievement-label">成就解锁</div>
+          <div class="achievement-name">{{ achievementToast.name }}</div>
+          <div class="achievement-desc">{{ achievementToast.description }}</div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+
+function handleCardMove(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement;
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const rx = ((y - cy) / cy) * -6;
+  const ry = ((x - cx) / cx) * 6;
+  el.style.setProperty("--rx", `${rx}deg`);
+  el.style.setProperty("--ry", `${ry}deg`);
+  el.style.setProperty("--mx", `${x}px`);
+  el.style.setProperty("--my", `${y}px`);
+}
+
+function handleCardLeave(e: MouseEvent) {
+  const el = e.currentTarget as HTMLElement;
+  if (!el) return;
+  el.style.setProperty("--rx", "0deg");
+  el.style.setProperty("--ry", "0deg");
+}
+
+function handleStartBtnMove(e: MouseEvent) {
+  const el = startBtn.value;
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const x = e.clientX - rect.left - rect.width / 2;
+  const y = e.clientY - rect.top - rect.height / 2;
+  el.style.setProperty("--bx", `${x * 0.15}px`);
+  el.style.setProperty("--by", `${y * 0.15}px`);
+}
+
+function handleStartBtnLeave() {
+  const el = startBtn.value;
+  if (!el) return;
+  el.style.setProperty("--bx", "0px");
+  el.style.setProperty("--by", "0px");
+}
 import { useRouter } from "vue-router";
 import { clearRuntimeState, loadRuntimeState } from "@/engine/storage";
+import {
+  unlockAchievement,
+  getAchievement,
+  getUnlockedCount,
+  ACHIEVEMENTS,
+} from "@/utils/achievements";
+import type { Achievement } from "@/utils/achievements";
 
 type Stage = "landing" | "intro" | "home";
-type IntroScene = "static" | "title" | "countdown";
+type IntroScene = "static" | "title" | "video";
 
 const router = useRouter();
 
@@ -391,29 +522,72 @@ const displayedText = ref("");
 const showCursor = ref(true);
 const typewriterDone = ref(false);
 
+const descFullText =
+  '人物备注：天真（2026短视频操盘手·穿越女主）、费启鸣（未爆火·青涩社恐男主）、天佑（富二代反派）、阿宁（男主前女友）。剧情结构：第一幕"穿越入局·命运初遇"，第二幕"创业之路·暗流涌动"，第三幕"巅峰对决·直播PK定胜负"。';
+const descDisplayed = ref("");
+const descCursorVisible = ref(true);
+let descTypewriterInterval: ReturnType<typeof setInterval> | null = null;
+
 const progress = ref(0);
 const canSkip = ref(false);
-const countdownNum = ref(3);
 const staticCanvas = ref<HTMLCanvasElement | null>(null);
+const introVideo = ref<HTMLVideoElement | null>(null);
 const signalStrength = ref(2);
+const startBtn = ref<HTMLButtonElement | null>(null);
+const progressLabel = ref("信号接入中");
+
+// 鼠标跟随光斑
+const cursorX = ref(-100);
+const cursorY = ref(-100);
+
+// 电视破坏效果
+const tvBroken = ref(false);
+const tvBrokenAnimating = ref(false);
+
+// 页面震动 & 全屏碎裂
+const pageShaking = ref(false);
+const screenShattered = ref(false);
+
+// 时空扭曲（视频加载前）
+const warpActive = ref(false);
+
+// 成就解锁提示
+const achievementToast = ref<Achievement | null>(null);
+const showAchievementToast = ref(false);
 
 let signalInterval: ReturnType<typeof setInterval> | null = null;
 
 let typewriterInterval: ReturnType<typeof setInterval> | null = null;
 let introStaticInterval: ReturnType<typeof setInterval> | null = null;
 let introProgressInterval: ReturnType<typeof setInterval> | null = null;
+let glitchInterval: ReturnType<typeof setInterval> | null = null;
 let introTimers: Array<ReturnType<typeof setTimeout>> = [];
 
-const TOTAL_DURATION = 8000;
 const SKIP_TIME = 2000;
 
+function onMouseMove(e: MouseEvent) {
+  cursorX.value = e.clientX;
+  cursorY.value = e.clientY;
+}
+
+const INTRO_SEEN_KEY = "chongsheng_intro_seen";
+
 onMounted(() => {
+  const seen = localStorage.getItem(INTRO_SEEN_KEY);
+  if (seen === "true") {
+    stage.value = "home";
+    return;
+  }
   startTypewriter();
+  window.addEventListener("mousemove", onMouseMove);
+  setTimeout(startDescTypewriter, 800);
 });
 
 onBeforeUnmount(() => {
   clearTypewriter();
+  clearDescTypewriter();
   clearIntroSequence();
+  window.removeEventListener("mousemove", onMouseMove);
 });
 
 function startTypewriter() {
@@ -440,7 +614,35 @@ function clearTypewriter() {
   }
 }
 
+function startDescTypewriter() {
+  descDisplayed.value = "";
+  descCursorVisible.value = true;
+  let index = 0;
+  descTypewriterInterval = setInterval(() => {
+    if (index < descFullText.length) {
+      descDisplayed.value += descFullText[index];
+      index++;
+      return;
+    }
+    if (descTypewriterInterval) {
+      clearInterval(descTypewriterInterval);
+      descTypewriterInterval = null;
+    }
+    setTimeout(() => {
+      descCursorVisible.value = false;
+    }, 3000);
+  }, 45);
+}
+
+function clearDescTypewriter() {
+  if (descTypewriterInterval) {
+    clearInterval(descTypewriterInterval);
+    descTypewriterInterval = null;
+  }
+}
+
 async function enterIntro() {
+  clearDescTypewriter();
   stage.value = "intro";
   scene.value = "static";
   await nextTick();
@@ -450,8 +652,8 @@ async function enterIntro() {
 function startIntroSequence() {
   clearIntroSequence();
   progress.value = 0;
+  progressLabel.value = "信号接入中";
   canSkip.value = false;
-  countdownNum.value = 3;
   signalStrength.value = 2;
 
   startStaticNoise();
@@ -463,19 +665,14 @@ function startIntroSequence() {
   const startedAt = Date.now();
   introProgressInterval = setInterval(() => {
     const elapsed = Date.now() - startedAt;
-    progress.value = Math.min((elapsed / TOTAL_DURATION) * 100, 100);
 
     if (elapsed >= SKIP_TIME) {
       canSkip.value = true;
     }
 
-    if (scene.value === "countdown") {
-      const remaining = Math.ceil((TOTAL_DURATION - elapsed) / 1000);
-      countdownNum.value = Math.max(remaining, 1);
-    }
-
-    if (elapsed >= TOTAL_DURATION) {
-      enterHome();
+    // 进度条：static + title 阶段按预动画进度，video 阶段交给视频自身
+    if (scene.value !== "video") {
+      progress.value = Math.min((elapsed / 5500) * 100, 100);
     }
   }, 100);
 
@@ -484,9 +681,61 @@ function startIntroSequence() {
       scene.value = "title";
     }, 2500),
     window.setTimeout(() => {
-      scene.value = "countdown";
+      // 时空扭曲效果：页面震动 + 漩涡扭曲，持续 1.2s 后进入视频
+      warpActive.value = true;
+      triggerPageShake(1200);
+    }, 4800),
+    window.setTimeout(() => {
+      warpActive.value = false;
+      screenShattered.value = false;
+      scene.value = "video";
+      // 进入视频阶段后，进度条开始乱动（信号紊乱 / 时空穿越效果）
+      startProgressGlitch();
     }, 5500),
   ];
+}
+
+function startProgressGlitch() {
+  if (glitchInterval) {
+    clearInterval(glitchInterval);
+  }
+
+  let glitchBase = 85;
+  let tickCount = 0;
+
+  const mildLabels = ["信号波动...", "传输不稳定", "时#空#轻#颤#"];
+  const midLabels = ["信$号$衰$减$", "时#空#不#稳#", "信#号#干#扰#"];
+  const severeLabels = ["信#号#丢#失#...", "时#间#线#坍#塌#", "连#接#中#断#"];
+
+  // 进度条缓慢下降 + 轻微随机波动，模拟信号逐渐丢失
+  glitchInterval = setInterval(() => {
+    tickCount++;
+
+    // 基础值稳步下降（3~6 每 tick），但偶尔小幅反弹
+    const drop = Math.random() < 0.15 ? -2 : 3 + Math.random() * 4;
+    glitchBase = Math.max(0, glitchBase - drop);
+
+    // 显示值围绕 base 波动，幅度 ±8，偶尔闪回
+    let display = glitchBase + (Math.random() - 0.5) * 16;
+    if (Math.random() < 0.08) {
+      display += 18 + Math.random() * 15; // 偶发闪回
+    }
+    progress.value = Math.max(-5, Math.min(105, display));
+
+    // 文字根据当前 base 值分阶段切换（每 2~3 个 tick 切换一次）
+    if (tickCount % (2 + Math.floor(Math.random() * 2)) === 0) {
+      if (glitchBase > 55) {
+        progressLabel.value =
+          mildLabels[Math.floor(Math.random() * mildLabels.length)];
+      } else if (glitchBase > 25) {
+        progressLabel.value =
+          midLabels[Math.floor(Math.random() * midLabels.length)];
+      } else {
+        progressLabel.value =
+          severeLabels[Math.floor(Math.random() * severeLabels.length)];
+      }
+    }
+  }, 400);
 }
 
 function clearIntroSequence() {
@@ -504,6 +753,15 @@ function clearIntroSequence() {
     clearInterval(signalInterval);
     signalInterval = null;
   }
+
+  if (glitchInterval) {
+    clearInterval(glitchInterval);
+    glitchInterval = null;
+  }
+
+  warpActive.value = false;
+  screenShattered.value = false;
+  pageShaking.value = false;
 
   introTimers.forEach((timer) => clearTimeout(timer));
   introTimers = [];
@@ -539,9 +797,80 @@ function startStaticNoise() {
   }, 50);
 }
 
+function onVideoProgress() {
+  const video = introVideo.value;
+  if (!video || !video.duration) {
+    return;
+  }
+
+  const remaining = video.duration - video.currentTime;
+
+  // 视频剩最后 0.8 秒时停止乱动、归零，营造"穿越归零"的仪式感
+  if (remaining <= 0.8 && glitchInterval) {
+    clearInterval(glitchInterval);
+    glitchInterval = null;
+    progress.value = 0;
+  }
+}
+
 function enterHome() {
   clearIntroSequence();
+  progress.value = 0;
+  progressLabel.value = "信号接入中";
   stage.value = "home";
+  localStorage.setItem(INTRO_SEEN_KEY, "true");
+}
+
+function triggerPageShake(duration = 600) {
+  pageShaking.value = true;
+  window.setTimeout(() => {
+    pageShaking.value = false;
+  }, duration);
+}
+
+function breakTv() {
+  if (tvBroken.value || tvBrokenAnimating.value || scene.value !== "static") {
+    return;
+  }
+  tvBrokenAnimating.value = true;
+
+  // 停止雪花屏
+  if (introStaticInterval) {
+    clearInterval(introStaticInterval);
+    introStaticInterval = null;
+  }
+  if (signalInterval) {
+    clearInterval(signalInterval);
+    signalInterval = null;
+  }
+
+  // 页面震动 + 全屏碎裂
+  triggerPageShake(800);
+
+  // 播放破坏动画
+  setTimeout(() => {
+    tvBrokenAnimating.value = false;
+    tvBroken.value = true;
+
+    // 全屏碎裂扩散
+    screenShattered.value = true;
+
+    // 解锁成就
+    if (unlockAchievement("smash_tv")) {
+      const ach = getAchievement("smash_tv");
+      if (ach) {
+        achievementToast.value = ach;
+        showAchievementToast.value = true;
+        setTimeout(() => {
+          showAchievementToast.value = false;
+        }, 3500);
+      }
+    }
+  }, 900);
+}
+
+function dismissAchievementToast() {
+  showAchievementToast.value = false;
 }
 
 function startGame() {
@@ -560,6 +889,9 @@ function resumeGame() {
 function backToLanding() {
   clearIntroSequence();
   stage.value = "landing";
+  descDisplayed.value = "";
+  descCursorVisible.value = true;
+  setTimeout(startDescTypewriter, 600);
 }
 
 function showComingSoon(name: string) {
@@ -586,11 +918,17 @@ defineExpose({
 }
 
 .landing-page,
-.intro-video,
-.home-page {
+.intro-video {
   position: absolute;
   inset: 0;
   overflow: hidden;
+}
+
+.home-page {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .landing-page {
@@ -598,7 +936,6 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #faf8f5;
 }
 
 .paper-bg {
@@ -619,8 +956,7 @@ defineExpose({
       ellipse at 50% 80%,
       rgba(139, 69, 19, 0.04) 0%,
       transparent 50%
-    ),
-    #faf8f5;
+    );
 }
 
 .grain-overlay {
@@ -639,31 +975,355 @@ defineExpose({
 }
 
 .frame-corner.tl {
-  top: 8px;
-  left: 8px;
+  top: 24px;
+  left: 24px;
   border-right: none;
   border-bottom: none;
 }
 
 .frame-corner.tr {
-  top: 8px;
-  right: 8px;
+  top: 24px;
+  right: 24px;
   border-left: none;
   border-bottom: none;
 }
 
 .frame-corner.bl {
-  bottom: 8px;
-  left: 8px;
+  bottom: 24px;
+  left: 24px;
   border-right: none;
   border-top: none;
 }
 
 .frame-corner.br {
-  bottom: 8px;
-  right: 8px;
+  bottom: 24px;
+  right: 24px;
   border-left: none;
   border-top: none;
+}
+
+/* ===== 浮动粒子背景 ===== */
+.particle-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(
+    circle,
+    rgba(201, 169, 110, 0.6) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: particle-float linear infinite;
+}
+
+.p-1 {
+  left: 10%;
+  top: 90%;
+  animation-duration: 12s;
+  animation-delay: 0s;
+}
+.p-2 {
+  left: 20%;
+  top: 95%;
+  animation-duration: 15s;
+  animation-delay: 1s;
+  width: 6px;
+  height: 6px;
+}
+.p-3 {
+  left: 30%;
+  top: 92%;
+  animation-duration: 10s;
+  animation-delay: 2s;
+}
+.p-4 {
+  left: 40%;
+  top: 97%;
+  animation-duration: 14s;
+  animation-delay: 0.5s;
+  width: 3px;
+  height: 3px;
+}
+.p-5 {
+  left: 50%;
+  top: 93%;
+  animation-duration: 11s;
+  animation-delay: 3s;
+  width: 5px;
+  height: 5px;
+}
+.p-6 {
+  left: 60%;
+  top: 96%;
+  animation-duration: 13s;
+  animation-delay: 1.5s;
+}
+.p-7 {
+  left: 70%;
+  top: 91%;
+  animation-duration: 16s;
+  animation-delay: 2.5s;
+  width: 4px;
+  height: 4px;
+}
+.p-8 {
+  left: 80%;
+  top: 94%;
+  animation-duration: 9s;
+  animation-delay: 0s;
+  width: 6px;
+  height: 6px;
+}
+.p-9 {
+  left: 90%;
+  top: 98%;
+  animation-duration: 12s;
+  animation-delay: 4s;
+}
+.p-10 {
+  left: 15%;
+  top: 95%;
+  animation-duration: 14s;
+  animation-delay: 2s;
+  width: 3px;
+  height: 3px;
+}
+.p-11 {
+  left: 25%;
+  top: 88%;
+  animation-duration: 11s;
+  animation-delay: 1s;
+  width: 5px;
+  height: 5px;
+}
+.p-12 {
+  left: 35%;
+  top: 99%;
+  animation-duration: 13s;
+  animation-delay: 3s;
+}
+.p-13 {
+  left: 45%;
+  top: 90%;
+  animation-duration: 10s;
+  animation-delay: 0.5s;
+  width: 4px;
+  height: 4px;
+}
+.p-14 {
+  left: 55%;
+  top: 97%;
+  animation-duration: 15s;
+  animation-delay: 2.5s;
+  width: 3px;
+  height: 3px;
+}
+.p-15 {
+  left: 65%;
+  top: 93%;
+  animation-duration: 12s;
+  animation-delay: 1.5s;
+  width: 6px;
+  height: 6px;
+}
+.p-16 {
+  left: 75%;
+  top: 96%;
+  animation-duration: 14s;
+  animation-delay: 0s;
+}
+.p-17 {
+  left: 85%;
+  top: 91%;
+  animation-duration: 11s;
+  animation-delay: 3.5s;
+  width: 4px;
+  height: 4px;
+}
+.p-18 {
+  left: 5%;
+  top: 94%;
+  animation-duration: 13s;
+  animation-delay: 2s;
+  width: 5px;
+  height: 5px;
+}
+.p-19 {
+  left: 95%;
+  top: 89%;
+  animation-duration: 10s;
+  animation-delay: 1s;
+}
+.p-20 {
+  left: 50%;
+  top: 100%;
+  animation-duration: 16s;
+  animation-delay: 4s;
+  width: 3px;
+  height: 3px;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* ===== 鼠标跟随光斑 ===== */
+.cursor-glow {
+  position: fixed;
+  z-index: 0;
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(201, 169, 110, 0.12) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.15s ease-out,
+    top 0.15s ease-out;
+}
+
+/* ===== 文字 stagger 入场动画 ===== */
+.enter-anim {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: enter-slide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes enter-slide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 按钮光晕效果 ===== */
+.glow-btn {
+  position: relative;
+}
+
+.glow-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: linear-gradient(90deg, #c9a96e, #e8d5a3, #c9a96e);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.4s ease;
+  animation: glow-shift 3s linear infinite;
+}
+
+.glow-btn:hover::before {
+  opacity: 0.6;
+}
+
+@keyframes glow-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* ===== 装饰线流光 ===== */
+.deco-line::before,
+.deco-line::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 169, 110, 0.6),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: line-shimmer 3s ease-in-out infinite;
+}
+
+.deco-line.top::before,
+.deco-line.top::after {
+  animation-delay: 0s;
+}
+
+.deco-line.bottom::before,
+.deco-line.bottom::after {
+  animation-delay: 1.5s;
+}
+
+@keyframes line-shimmer {
+  0%,
+  100% {
+    background-position: -100% 50%;
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+  }
+}
+
+/* ===== 描述卡片微光 ===== */
+.desc-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.desc-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(201, 169, 110, 0.03) 50%,
+    transparent 60%
+  );
+  animation: card-shimmer 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes card-shimmer {
+  0%,
+  100% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  50% {
+    transform: translateX(100%) rotate(45deg);
+  }
 }
 
 .content {
@@ -693,6 +1353,17 @@ defineExpose({
   border-radius: 50%;
   transform: rotate(-12deg);
   opacity: 0.7;
+  animation: stamp-float 3s ease-in-out infinite;
+}
+
+@keyframes stamp-float {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-10deg) translateY(-4px);
+  }
 }
 
 .stamp-text {
@@ -756,35 +1427,39 @@ defineExpose({
 
 .tagline {
   margin: 0;
-  color: #8b7355;
-  font-size: 1rem;
-  font-style: italic;
-  letter-spacing: 2px;
+  color: #a08060;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
 }
 
-.desc-box {
-  max-width: 500px;
-  min-height: 80px;
-  padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(201, 169, 110, 0.4);
+.desc-card {
+  max-width: 520px;
+  padding: 1.25rem 1.75rem;
+  background: rgba(250, 248, 245, 0.75);
+  border: 1px solid rgba(201, 169, 110, 0.35);
   border-radius: 4px;
 }
 
-.typewriter {
+.desc-text {
   margin: 0;
-  color: #5c4033;
-  font-size: 0.95rem;
-  line-height: 1.8;
+  color: #6b5340;
+  font-size: 0.82rem;
+  line-height: 1.85;
   text-align: left;
+  letter-spacing: 0.3px;
 }
 
-.cursor {
-  color: #8b4513;
-  animation: blink 1s step-end infinite;
+.typewriter-desc {
+  min-height: 3em;
 }
 
-@keyframes blink {
+.type-cursor {
+  display: inline-block;
+  color: #c9a96e;
+  animation: blink-cursor 1s step-end infinite;
+}
+
+@keyframes blink-cursor {
   50% {
     opacity: 0;
   }
@@ -800,75 +1475,61 @@ defineExpose({
   background: none;
   border: none;
   cursor: pointer;
-}
-
-.start-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+  transform: translate(var(--bx, 0), var(--by, 0));
+  transition: transform 0.15s ease-out;
 }
 
 .btn-border {
   display: inline-block;
-  padding: 3px;
-  border: 1px solid #c9a96e;
 }
 
 .btn-inner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 2.5rem;
+  gap: 0.6rem;
+  padding: 0.85rem 2.2rem;
   color: #faf8f5;
-  font-size: 1rem;
-  letter-spacing: 4px;
+  font-size: 0.95rem;
+  letter-spacing: 3px;
   background: #3d2914;
+  border-radius: 2px;
   transition: all 0.3s ease;
 }
 
-.start-btn:hover:not(:disabled) .btn-inner {
+.start-btn:hover .btn-inner {
   background: #5c4033;
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(61, 41, 20, 0.3);
 }
 
 .btn-icon {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .bottom-menu {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.2rem;
   margin-top: 0.5rem;
 }
 
-.menu-link {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.menu-item {
   color: #8b7355;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
   background: none;
   border: none;
   transition: color 0.3s;
 }
 
-.menu-link:hover {
+.menu-item:hover {
   color: #3d2914;
+  cursor: pointer;
 }
 
-.link-dot {
-  width: 5px;
-  height: 5px;
-  background: currentColor;
-  border-radius: 50%;
-}
-
-.link-sep {
+.menu-sep {
   color: #c9a96e;
-  font-size: 0.7rem;
-  opacity: 0.6;
+  font-size: 0.8rem;
+  opacity: 0.5;
 }
 
 .modal-overlay,
@@ -966,7 +1627,7 @@ defineExpose({
 
 .tv-static,
 .title-scene,
-.countdown-scene {
+.video-scene {
   position: absolute;
   inset: 0;
   display: flex;
@@ -975,7 +1636,7 @@ defineExpose({
 }
 
 .tv-static,
-.countdown-scene {
+.video-scene {
   flex-direction: column;
   gap: 1rem;
 }
@@ -1337,45 +1998,14 @@ defineExpose({
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise2)'/%3E%3C/svg%3E");
 }
 
-.countdown-scene {
-  gap: 2rem;
-  background: #0a0a0a;
+.video-scene {
+  background: #000;
 }
 
-.countdown-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 120px;
-  height: 120px;
-  border: 3px solid #c9a96e;
-  border-radius: 50%;
-  animation: pulse-circle 1s ease-in-out infinite;
-}
-
-@keyframes pulse-circle {
-  0%,
-  100% {
-    transform: scale(1);
-    border-color: #c9a96e;
-  }
-
-  50% {
-    transform: scale(1.05);
-    border-color: #e74c3c;
-  }
-}
-
-.countdown-num {
-  color: #faf8f5;
-  font-size: 3rem;
-  font-weight: 300;
-}
-
-.countdown-hint {
-  color: #8b7355;
-  font-size: 1rem;
-  letter-spacing: 3px;
+.intro-video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .skip-btn {
@@ -1402,21 +2032,71 @@ defineExpose({
   bottom: 0;
   left: 0;
   z-index: 10;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 0 0.5rem;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.2) 60%,
+    transparent 100%
+  );
+}
+
+.progress-track {
+  position: relative;
+  width: min(420px, 85%);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='4' height='4' fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size: 4px 4px;
 }
 
 .progress-fill {
   height: 100%;
-  background: #c9a96e;
-  transition: width 0.1s linear;
+  background: linear-gradient(90deg, #b8924a 0%, #c9a96e 50%, #e8d5a3 100%);
+  border-radius: 2px;
+  transition: width 0.15s linear;
+  box-shadow:
+    0 0 8px rgba(201, 169, 110, 0.4),
+    0 0 2px rgba(201, 169, 110, 0.6);
+}
+
+.progress-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(420px, 85%);
+  margin-top: 0.35rem;
+}
+
+.progress-label {
+  color: rgba(201, 169, 110, 0.7);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+}
+
+.progress-percent {
+  color: rgba(250, 248, 245, 0.65);
+  font-size: 0.65rem;
+  font-family: monospace;
+  letter-spacing: 1px;
 }
 
 .home-page {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  background: #faf8f5;
+  background: rgba(250, 248, 245, 0.88);
   --hub-pad-x: clamp(4.5rem, 7vw, 5.5rem);
 }
 
@@ -1506,6 +2186,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  overflow: visible;
 }
 
 .section-head {
@@ -1517,7 +2198,12 @@ defineExpose({
 .section-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 169, 110, 0.55), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 169, 110, 0.55),
+    transparent
+  );
 }
 
 .section-label {
@@ -1532,8 +2218,11 @@ defineExpose({
 .card-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.85rem;
+  gap: 1.8rem;
   width: 100%;
+  padding: 0.65rem 0.5rem;
+  perspective: 1200px;
+  overflow: visible;
 }
 
 .feature-card {
@@ -1550,122 +2239,276 @@ defineExpose({
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(61, 41, 20, 0.04);
   cursor: pointer;
+  transform-style: preserve-3d;
+  transform: perspective(800px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg)) translateZ(0);
   transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    filter 0.3s ease;
+  animation: card-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.feature-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.feature-card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.feature-card:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.feature-card:nth-child(4) {
+  animation-delay: 0.35s;
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateX(4deg) translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) rotateX(0deg) translateY(0);
+  }
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  background: radial-gradient(
+    600px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(201, 169, 110, 0.12),
+    transparent 40%
+  );
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
   border-color: #c9a96e;
   box-shadow: 0 8px 24px rgba(61, 41, 20, 0.1);
 }
 
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+/* ===== 复古卷轴卡片（心灵倾述 / 时光相册 / 成就墙） ===== */
 .feature-card:not(.primary) {
   overflow: visible;
-  padding: 3.2rem 2rem 2.6rem;
-  background: transparent url(/images/border-frame.png) center / 145% auto no-repeat;
+  padding: 0;
+  background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
-  min-height: 240px;
+  min-height: 260px;
+  transform-style: preserve-3d;
+  transform: perspective(800px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg)) translateZ(0) translateY(var(--ty, 0px));
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.3s ease,
+    filter 0.3s ease;
 }
 
+/* 边框装饰图 —— 填满整张卡片，展示完整卷轴与花朵 */
+.feature-card:not(.primary)::after {
+  content: "";
+  position: absolute;
+  inset: -6px -8px -10px -8px;
+  z-index: 0;
+  background: url(/images/border-frame.png) center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* 卡片内容层 */
+.feature-card:not(.primary) > .card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 4.2rem 1.2rem 2.8rem;
+}
+
+/* 悬浮效果：纸张浮起 + 阴影层次 + 微光 */
 .feature-card:not(.primary):hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(61, 41, 20, 0.1);
+  --ty: -8px;
+  filter: brightness(1.04);
+}
+
+.feature-card:not(.primary):hover::after {
+  filter: brightness(1.06) drop-shadow(0 16px 40px rgba(61, 41, 20, 0.18));
+  transition: filter 0.35s ease;
+}
+
+.feature-card:not(.primary):hover .card-title {
+  color: #5c3d1e;
+  transform: translateY(-2px);
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.feature-card:not(.primary):hover .card-desc {
+  color: #7a6248;
+  transition: color 0.3s ease;
+}
+
+.feature-card:not(.primary):hover .card-tag {
+  background: rgba(201, 169, 110, 0.12);
+  border-color: rgba(201, 169, 110, 0.35);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
 }
 
 .feature-card.primary {
   grid-column: 1 / -1;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
-  min-height: auto;
-  padding: 1.1rem 1.25rem;
+  gap: 1.5rem;
+  min-height: 120px;
+  padding: 1.5rem 2rem;
   text-align: left;
   background: linear-gradient(
-    120deg,
-    rgba(201, 169, 110, 0.18) 0%,
-    rgba(255, 252, 247, 0.96) 55%
+    135deg,
+    rgba(255, 252, 247, 0.98) 0%,
+    rgba(248, 240, 228, 0.95) 100%
   );
-  border-color: rgba(201, 169, 110, 0.75);
-  box-shadow: 0 4px 20px rgba(61, 41, 20, 0.07);
+  border: 2px solid rgba(201, 169, 110, 0.6);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 20px rgba(61, 41, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feature-card.primary:hover {
   background: linear-gradient(
-    120deg,
-    rgba(201, 169, 110, 0.26) 0%,
-    rgba(255, 252, 247, 1) 55%
+    135deg,
+    rgba(255, 252, 247, 1) 0%,
+    rgba(248, 240, 228, 0.98) 100%
   );
-  box-shadow: 0 8px 28px rgba(61, 41, 20, 0.1);
+  border-color: rgba(201, 169, 110, 0.85);
+  box-shadow:
+    0 8px 32px rgba(61, 41, 20, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
 }
 
 .primary-icon-wrap {
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  border: 1px solid rgba(201, 169, 110, 0.55);
+  width: 72px;
+  height: 72px;
+  border: 2px solid rgba(201, 169, 110, 0.6);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(145deg, #fffbf5, #f5ebe0);
+  box-shadow:
+    0 4px 12px rgba(61, 41, 20, 0.1),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8),
+    inset 0 -2px 4px rgba(201, 169, 110, 0.1);
+  transition: transform 0.25s ease;
+}
+
+.feature-card.primary:hover .primary-icon-wrap {
+  transform: scale(1.08);
 }
 
 .primary-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .primary-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.75rem;
-  margin-bottom: 0.35rem;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.15rem 0.55rem;
+  gap: 0.4rem;
+  padding: 0.25rem 0.85rem;
   color: #4a7c59;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  background: rgba(46, 139, 87, 0.1);
-  border: 1px solid rgba(46, 139, 87, 0.22);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  background: linear-gradient(
+    145deg,
+    rgba(129, 172, 141, 0.25),
+    rgba(129, 172, 141, 0.15)
+  );
+  border: 1px solid rgba(129, 172, 141, 0.45);
   border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(74, 124, 89, 0.5);
+  transition: all 0.3s ease;
+}
+
+.status-dot.active {
+  background: #5a9a6e;
+  box-shadow: 0 0 8px rgba(90, 154, 110, 0.6);
+}
+
+.feature-card.primary .card-title {
+  margin: 0;
+  color: #3d2914;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 .feature-card.primary .card-desc {
-  margin-bottom: 0.35rem;
+  margin: 0 0 0.55rem;
+  color: #6b5344;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  text-align: left;
 }
 
 .card-hint {
   margin: 0;
-  color: #a08060;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  color: #9a8068;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
 }
 
 .primary-arrow {
   flex-shrink: 0;
   color: #c9a96e;
-  font-size: 2rem;
+  font-size: 2.4rem;
   line-height: 1;
-  opacity: 0.7;
+  opacity: 0.55;
   transition:
-    transform 0.25s ease,
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.25s ease;
 }
 
 .feature-card.primary:hover .primary-arrow {
   opacity: 1;
-  transform: translateX(4px);
+  transform: translateX(10px);
 }
 
 .card-icon-wrap {
@@ -1684,55 +2527,29 @@ defineExpose({
   font-size: 1.25rem;
 }
 
-.card-soul {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 248, 245, 0.95) 0%,
-    rgba(255, 255, 255, 0.75) 100%
-  );
-}
-
-.card-soul .card-icon {
-  color: #a86b5a;
-}
-
-.card-album .card-icon {
-  color: #b8924a;
-}
-
-.card-achievement .card-icon {
-  color: #7a8b5a;
-}
-
-.card-icon {
-  margin-bottom: 0;
-  color: #c9a96e;
-  font-size: 1.5rem;
-}
-
-.feature-card.primary .card-icon {
-  color: #8b4513;
-  font-size: 1.8rem;
-}
-
 .card-title {
-  margin: 0 0 0.5rem;
+  margin: 0.6rem 0 0.7rem;
   color: #3d2914;
-  font-size: 1.1rem;
-  font-weight: 400;
-  letter-spacing: 2px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 3px;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .card-desc {
   flex: 1;
-  margin: 0 0 0.65rem;
+  margin: 0 0 0.9rem;
   color: #8b7355;
-  font-size: 0.78rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  text-align: center;
+  transition: color 0.3s ease;
 }
 
 .feature-card:not(.primary) .card-desc {
-  min-height: 2.4em;
+  min-height: 2.8em;
 }
 
 .status-dot {
@@ -1760,6 +2577,7 @@ defineExpose({
 
 .card-tag {
   margin-top: auto;
+  margin-bottom: 0.4rem;
   display: inline-block;
   padding: 0.22rem 0.65rem;
   color: #8b7355;
@@ -1768,6 +2586,7 @@ defineExpose({
   background: rgba(139, 115, 85, 0.08);
   border: 1px solid rgba(139, 115, 85, 0.15);
   border-radius: 999px;
+  transition: all 0.3s ease;
 }
 
 .card-tag-live {
@@ -1890,7 +2709,8 @@ defineExpose({
   }
 
   .feature-card:not(.primary) {
-    min-height: auto;
+    min-height: 220px;
+    padding: 3rem 1.6rem 2.4rem;
   }
 
   .feature-card.primary {
@@ -1928,5 +2748,538 @@ defineExpose({
   .info-value {
     font-size: 0.95rem;
   }
+}
+
+/* ===== 电视破坏效果 ===== */
+.tv-frame {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.tv-frame:hover {
+  transform: scale(1.01);
+}
+
+.tv-frame.breaking {
+  animation: tv-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.tv-frame.broken {
+  cursor: default;
+  animation: tv-flash 0.3s ease-out both;
+}
+
+@keyframes tv-shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  10% {
+    transform: translate(-4px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(4px, 2px) rotate(1deg);
+  }
+  30% {
+    transform: translate(-6px, -3px) rotate(-1.5deg);
+  }
+  40% {
+    transform: translate(6px, 3px) rotate(1.5deg);
+  }
+  50% {
+    transform: translate(-4px, -2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(4px, 2px) rotate(1deg);
+  }
+  70% {
+    transform: translate(-2px, -1px) rotate(-0.5deg);
+  }
+  80% {
+    transform: translate(2px, 1px) rotate(0.5deg);
+  }
+  90% {
+    transform: translate(-1px, 0) rotate(0);
+  }
+}
+
+@keyframes tv-flash {
+  0% {
+    filter: brightness(1) contrast(1);
+  }
+  30% {
+    filter: brightness(3) contrast(1.5);
+  }
+  60% {
+    filter: brightness(0.3) contrast(2);
+  }
+  100% {
+    filter: brightness(1) contrast(1);
+  }
+}
+
+/* 屏幕裂纹 */
+.tv-crack {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    transparent 48%,
+    rgba(200, 200, 200, 0.6) 49%,
+    rgba(150, 150, 150, 0.8) 50%,
+    rgba(200, 200, 200, 0.6) 51%,
+    transparent 52%
+  );
+  opacity: 0;
+  animation: crack-appear 0.3s ease-out 0.4s forwards;
+}
+
+.crack-1 {
+  top: 15%;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  transform: rotate(35deg);
+}
+
+.crack-2 {
+  top: 40%;
+  left: 30%;
+  width: 50%;
+  height: 2px;
+  transform: rotate(-25deg);
+  animation-delay: 0.5s;
+}
+
+.crack-3 {
+  top: 55%;
+  left: 25%;
+  width: 55%;
+  height: 2px;
+  transform: rotate(15deg);
+  animation-delay: 0.6s;
+}
+
+@keyframes crack-appear {
+  from {
+    opacity: 0;
+    transform: scaleX(0) rotate(var(--r, 0deg));
+  }
+  to {
+    opacity: 0.7;
+    transform: scaleX(1) rotate(var(--r, 0deg));
+  }
+}
+
+/* 天线耷拉 */
+.antenna.droop .antenna-rod {
+  transform: rotate(-30deg);
+  transform-origin: bottom center;
+  transition: transform 0.5s ease;
+}
+
+.antenna.droop .antenna-coil {
+  transform: rotate(-30deg);
+  transform-origin: bottom center;
+  transition: transform 0.5s ease;
+}
+
+/* 屏幕熄灭 */
+.screen-off {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  opacity: 0;
+  animation: screen-die 0.4s ease-out 0.2s forwards;
+}
+
+@keyframes screen-die {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.static-canvas.off {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* 破坏后各部件状态 */
+.tv-brand.broken,
+.tv-controls.broken,
+.tv-feet.broken {
+  opacity: 0.6;
+  filter: grayscale(0.4);
+  transition: all 0.4s ease;
+}
+
+.broken-text {
+  color: #e74c3c !important;
+  letter-spacing: 0.2em;
+  animation: none !important;
+  text-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+/* ===== 成就解锁提示 ===== */
+.achievement-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #faf8f5 0%, #fff 100%);
+  border: 1px solid #c9a96e;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(61, 41, 20, 0.15);
+  cursor: pointer;
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  line-height: 1;
+  animation: trophy-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes trophy-bounce {
+  0% {
+    transform: scale(0) rotate(-20deg);
+  }
+  60% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.achievement-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.achievement-label {
+  color: #c9a96e;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.achievement-name {
+  color: #3d2914;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.achievement-desc {
+  color: #8b7355;
+  font-size: 0.78rem;
+}
+
+.achievement-toast-enter-active {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.achievement-toast-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.achievement-toast-enter-from {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+}
+
+.achievement-toast-leave-to {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+@media (max-width: 600px) {
+  .achievement-toast {
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
+
+/* ===== 页面震动 ===== */
+.page-shaking {
+  animation: page-shake-intense 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes page-shake-intense {
+  0% {
+    transform: translate(0, 0) rotate(0);
+  }
+  8% {
+    transform: translate(-8px, 5px) rotate(-0.8deg);
+  }
+  16% {
+    transform: translate(7px, -4px) rotate(0.6deg);
+  }
+  24% {
+    transform: translate(-10px, 6px) rotate(-1deg);
+  }
+  32% {
+    transform: translate(9px, -5px) rotate(0.8deg);
+  }
+  40% {
+    transform: translate(-7px, 4px) rotate(-0.6deg);
+  }
+  48% {
+    transform: translate(8px, -6px) rotate(0.7deg);
+  }
+  56% {
+    transform: translate(-6px, 3px) rotate(-0.5deg);
+  }
+  64% {
+    transform: translate(5px, -4px) rotate(0.4deg);
+  }
+  72% {
+    transform: translate(-4px, 2px) rotate(-0.3deg);
+  }
+  80% {
+    transform: translate(3px, -2px) rotate(0.2deg);
+  }
+  88% {
+    transform: translate(-2px, 1px) rotate(-0.1deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
+/* ===== 全屏碎裂效果 ===== */
+.shatter-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.shatter-piece {
+  position: absolute;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(200, 200, 200, 0.7) 40%,
+    rgba(150, 150, 150, 0.5) 100%
+  );
+  opacity: 0;
+  animation: shatter-spread 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.piece-1 {
+  top: 10%;
+  left: 45%;
+  width: 3px;
+  height: 80px;
+  transform: rotate(15deg);
+  animation-delay: 0.1s;
+}
+.piece-2 {
+  top: 20%;
+  left: 40%;
+  width: 2px;
+  height: 60px;
+  transform: rotate(-20deg);
+  animation-delay: 0.15s;
+}
+.piece-3 {
+  top: 30%;
+  left: 50%;
+  width: 2px;
+  height: 70px;
+  transform: rotate(35deg);
+  animation-delay: 0.2s;
+}
+.piece-4 {
+  top: 15%;
+  left: 55%;
+  width: 3px;
+  height: 90px;
+  transform: rotate(-10deg);
+  animation-delay: 0.12s;
+}
+.piece-5 {
+  top: 40%;
+  left: 35%;
+  width: 2px;
+  height: 50px;
+  transform: rotate(45deg);
+  animation-delay: 0.18s;
+}
+.piece-6 {
+  top: 50%;
+  left: 60%;
+  width: 2px;
+  height: 65px;
+  transform: rotate(-30deg);
+  animation-delay: 0.22s;
+}
+.piece-7 {
+  top: 60%;
+  left: 42%;
+  width: 3px;
+  height: 55px;
+  transform: rotate(25deg);
+  animation-delay: 0.25s;
+}
+.piece-8 {
+  top: 25%;
+  left: 65%;
+  width: 2px;
+  height: 75px;
+  transform: rotate(-15deg);
+  animation-delay: 0.14s;
+}
+.piece-9 {
+  top: 70%;
+  left: 48%;
+  width: 2px;
+  height: 45px;
+  transform: rotate(40deg);
+  animation-delay: 0.28s;
+}
+.piece-10 {
+  top: 35%;
+  left: 30%;
+  width: 3px;
+  height: 85px;
+  transform: rotate(-25deg);
+  animation-delay: 0.16s;
+}
+.piece-11 {
+  top: 45%;
+  left: 70%;
+  width: 2px;
+  height: 60px;
+  transform: rotate(10deg);
+  animation-delay: 0.2s;
+}
+.piece-12 {
+  top: 55%;
+  left: 38%;
+  width: 2px;
+  height: 70px;
+  transform: rotate(-40deg);
+  animation-delay: 0.24s;
+}
+
+@keyframes shatter-spread {
+  0% {
+    opacity: 0;
+    transform: scaleY(0) rotate(var(--r, 0deg));
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+    transform: scaleY(1) rotate(var(--r, 0deg));
+  }
+}
+
+/* ===== 时空扭曲效果 ===== */
+.warp-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.4) 70%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  animation: warp-fade-in 0.3s ease-out forwards;
+}
+
+.warp-ring {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(201, 169, 110, 0.6);
+  border-radius: 50%;
+  animation: warp-expand 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.warp-ring.delay-1 {
+  animation-delay: 0.15s;
+  border-color: rgba(201, 169, 110, 0.4);
+}
+
+.warp-ring.delay-2 {
+  animation-delay: 0.3s;
+  border-color: rgba(201, 169, 110, 0.2);
+}
+
+.warp-vortex {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(231, 76, 60, 0.5);
+  border-radius: 50%;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  animation:
+    vortex-spin 0.8s linear infinite,
+    vortex-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes warp-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes warp-expand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(8);
+    opacity: 0;
+  }
+}
+
+@keyframes vortex-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vortex-pulse {
+  from {
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
+  }
+}
+
+.intro-video.warping {
+  filter: contrast(1.3) saturate(1.2) brightness(0.9);
+  transition: filter 0.3s ease;
 }
 </style>

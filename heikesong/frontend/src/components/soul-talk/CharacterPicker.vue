@@ -48,37 +48,57 @@ defineEmits<{
 <style scoped>
 .character-picker {
   display: flex;
-  gap: 0.65rem;
+  gap: 1rem;
   padding: 0.15rem 0.1rem 0.35rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
 .character-tab {
+  position: relative;
   display: flex;
-  flex-shrink: 0;
+  flex: 1;
   align-items: center;
-  gap: 0.65rem;
-  min-width: 156px;
-  padding: 0.5rem 0.85rem 0.5rem 0.5rem;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.7rem 1.2rem 0.7rem 0.7rem;
   text-align: left;
   background: rgba(255, 255, 255, 0.65);
   border: 1px solid rgba(201, 169, 110, 0.28);
   border-radius: 12px;
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .character-tab:hover {
   border-color: rgba(201, 169, 110, 0.55);
+  transform: translateY(-2px);
 }
 
 .character-tab.active {
   background: rgba(255, 255, 255, 0.95);
   border-color: #c9a96e;
-  box-shadow: 0 4px 16px rgba(61, 41, 20, 0.08);
+  box-shadow: 0 6px 22px rgba(61, 41, 20, 0.1);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.character-tab.active::after {
+  content: "";
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.5rem;
+  left: 0.6rem;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent, #c9a96e), transparent);
+  border-radius: 1px;
+  opacity: 0.6;
+  animation: tab-glow 2s ease-in-out infinite;
+}
+
+@keyframes tab-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 .tab-portrait {
@@ -88,23 +108,22 @@ defineEmits<{
 .tab-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.2rem;
   min-width: 0;
 }
 
 .tab-name {
   color: #3d2914;
-  font-size: 0.88rem;
+  font-size: 1rem;
   letter-spacing: 0.08em;
 }
 
 .tab-role {
   color: #8b7355;
-  font-size: 0.65rem;
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

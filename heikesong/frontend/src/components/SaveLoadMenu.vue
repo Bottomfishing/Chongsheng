@@ -1,5 +1,5 @@
 <template>
-  <Transition name="fade">
+  <Transition name="menu-fade">
     <div v-if="visible" class="menu-overlay" @click.self="close">
       <div class="menu-panel">
         <div class="menu-header">
@@ -14,9 +14,10 @@
 
         <div v-else class="save-list">
           <div
-            v-for="save in saves"
+            v-for="(save, idx) in saves"
             :key="save.id"
             class="save-item"
+            :style="{ animationDelay: `${idx * 0.06}s` }"
             @click="handleAction(save.id)"
           >
             <div class="save-info">
@@ -261,13 +262,58 @@ function close() {
   font-size: 1.1rem;
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.menu-fade-enter-active,
+.menu-fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.menu-fade-enter-active .menu-panel {
+  animation: menu-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.menu-fade-leave-active .menu-panel {
+  animation: menu-slide-down 0.25s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.menu-fade-enter-from,
+.menu-fade-leave-to {
   opacity: 0;
+}
+
+.save-item {
+  animation: save-item-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes menu-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menu-slide-down {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+}
+
+@keyframes save-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>

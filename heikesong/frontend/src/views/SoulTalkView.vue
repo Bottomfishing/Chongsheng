@@ -24,15 +24,17 @@
       <CharacterPicker
         :characters="digitalHumans"
         :active-id="activeCharacterId"
-        @select="switchCharacter"
+        @select="onPickerSelect"
       />
 
       <SoulTalkStage
+        ref="stageRef"
         :character-id="activeCharacter.id"
         :character-name="activeCharacter.name"
         :character-symbol="activeCharacter.symbol"
         :character-role="activeCharacter.role"
         :character-portrait="activeCharacter.portrait"
+        :character-animation="activeCharacter.animation"
         :accent="activeCharacter.accent"
         :accent-soft="activeCharacter.accentSoft"
         :messages="activeMessages"
@@ -40,20 +42,27 @@
         :sending="isSending"
         placeholder="向 TA 说说你的心事…"
         @send="handleSend"
+        @prev="switchPrevCharacter"
+        @next="switchNextCharacter"
       />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
 import { RouterLink } from "vue-router";
 import CharacterPicker from "@/components/soul-talk/CharacterPicker.vue";
 import SoulTalkStage from "@/components/soul-talk/SoulTalkStage.vue";
+import type { ComponentPublicInstance } from "vue";
 import { digitalHumans } from "@/data/digitalHumans";
 import { soulTalkApi } from "@/services/soulTalkApi";
 import type { ChatMessage } from "@/types/soulTalk";
 
+const stageRef = ref<ComponentPublicInstance<{
+  playCharacterVideo: () => void;
+  stopCharacterVideo: () => void;
+}> | null>(null);
 const activeCharacterId = ref(digitalHumans[0].id);
 const histories = reactive<Record<string, ChatMessage[]>>({});
 const isTyping = ref(false);
@@ -90,6 +99,28 @@ function ensureGreeting(characterId: string) {
 function switchCharacter(id: string) {
   activeCharacterId.value = id;
   ensureGreeting(id);
+}
+
+function switchCharacterAndStop(id: string) {
+  switchCharacter(id);
+  void nextTick(() => stageRef.value?.stopCharacterVideo());
+}
+
+function onPickerSelect(id: string) {
+  switchCharacter(id);
+  void nextTick(() => stageRef.value?.playCharacterVideo());
+}
+
+function switchPrevCharacter() {
+  const idx = digitalHumans.findIndex((c) => c.id === activeCharacterId.value);
+  const prevIdx = idx <= 0 ? digitalHumans.length - 1 : idx - 1;
+  switchCharacterAndStop(digitalHumans[prevIdx].id);
+}
+
+function switchNextCharacter() {
+  const idx = digitalHumans.findIndex((c) => c.id === activeCharacterId.value);
+  const nextIdx = idx >= digitalHumans.length - 1 ? 0 : idx + 1;
+  switchCharacterAndStop(digitalHumans[nextIdx].id);
 }
 
 async function handleSend(text: string) {
@@ -134,7 +165,6 @@ ensureGreeting(activeCharacterId.value);
   display: flex;
   flex-direction: column;
   color: #3d2914;
-  background: #faf8f5;
   font-family:
     "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
 }
@@ -144,8 +174,7 @@ ensureGreeting(activeCharacterId.value);
   inset: 0;
   background:
     radial-gradient(ellipse at 18% 20%, rgba(201, 169, 110, 0.1), transparent 42%),
-    radial-gradient(ellipse at 82% 78%, rgba(139, 69, 19, 0.06), transparent 40%),
-    #faf8f5;
+    radial-gradient(ellipse at 82% 78%, rgba(139, 69, 19, 0.06), transparent 40%);
 }
 
 .grain-overlay {
@@ -253,11 +282,9 @@ ensureGreeting(activeCharacterId.value);
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0.75rem var(--hub-pad-x) 1.5rem;
+  padding: 0.5rem var(--hub-pad-x) 1.25rem;
 }
 
 @media (max-width: 860px) {

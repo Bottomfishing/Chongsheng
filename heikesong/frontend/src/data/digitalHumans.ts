@@ -1,11 +1,9 @@
 import type { DigitalHuman } from "@/types/soulTalk";
 
 /**
- * 立绘文件命名（放入 frontend/public/characters/）：
- * - niu-tianzhen.png  牛天真
- * - li-tianzuo.png    李天佐
- * - fei-qian.png      费启暗
- * - a-ning.png        阿宁
+ * 立绘：frontend/public/characters/{id}.png
+ * 动画：frontend/public/characters/animations/{id}.mp4
+ * 顺序：牛天真 → 李天佐 → 费启暗 → 阿宁
  */
 export const digitalHumans: DigitalHuman[] = [
   {
@@ -22,6 +20,7 @@ export const digitalHumans: DigitalHuman[] = [
     accentSoft: "rgba(184, 107, 122, 0.16)",
     symbol: "牛",
     portrait: "/characters/niu-tianzhen.png",
+    animation: "/characters/animations/niu-tianzhen.mp4",
   },
   {
     id: "li-tianzuo",
@@ -37,6 +36,7 @@ export const digitalHumans: DigitalHuman[] = [
     accentSoft: "rgba(139, 105, 20, 0.14)",
     symbol: "李",
     portrait: "/characters/li-tianzuo.png",
+    animation: "/characters/animations/li-tianzuo.mp4",
   },
   {
     id: "fei-qian",
@@ -52,6 +52,7 @@ export const digitalHumans: DigitalHuman[] = [
     accentSoft: "rgba(90, 107, 122, 0.16)",
     symbol: "费",
     portrait: "/characters/fei-qian.png",
+    animation: "/characters/animations/fei-qian.mp4",
   },
   {
     id: "a-ning",
@@ -67,6 +68,7 @@ export const digitalHumans: DigitalHuman[] = [
     accentSoft: "rgba(201, 160, 110, 0.16)",
     symbol: "宁",
     portrait: "/characters/a-ning.png",
+    animation: "/characters/animations/a-ning.mp4",
   },
 ];
 

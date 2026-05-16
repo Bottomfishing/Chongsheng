@@ -1,6 +1,9 @@
 import type { SendMessagePayload, SoulTalkApi } from "@/types/soulTalk";
 import { getDigitalHuman } from "@/data/digitalHumans";
 
+const BASE_URL = "https://api.ltoken.shop/v1";
+const API_KEY = "sk-5FQt8VAn2DXDRTsgQm8MeyJJG9Lh4rpjuE5bHTxSLOiUhgjB";
+
 const mockReplies: Record<string, string[]> = {
   "niu-tianzhen": [
     "你先别急，把来龙去脉理清楚，我们再想对策。",
@@ -24,10 +27,80 @@ const mockReplies: Record<string, string[]> = {
   ],
 };
 
-/**
- * 占位实现：后续替换为真实 HTTP / WebSocket API 即可。
- * 建议接口：POST /api/soul-talk/message { characterId, message, history }
- */
+export class RealSoulTalkApi implements SoulTalkApi {
+  async sendMessage(payload: SendMessagePayload): Promise<string> {
+    const { characterId, message, history } = payload;
+    
+    try {
+      const response = await fetch(`${BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "deepseek-v4-flash",
+          messages: [
+            {
+              role: "system",
+              content: this.buildSystemPrompt(characterId),
+            },
+            ...history.map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
+            {
+              role: "user",
+              content: message,
+            },
+          ],
+          max_tokens: 500,
+          temperature: 0.8,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || this.getFallbackReply(characterId);
+    } catch (error) {
+      console.warn("Real API failed, falling back to mock:", error);
+      return this.getFallbackReply(characterId);
+    }
+  }
+
+  private buildSystemPrompt(characterId: string): string {
+    const character = getDigitalHuman(characterId);
+    if (!character) {
+      return "你是一个友善的聊天伙伴，请用自然的语言回复用户。";
+    }
+
+    if (character.systemPrompt) {
+      return character.systemPrompt;
+    }
+
+    return `
+你是${character.name}，身份是${character.role}，来自${character.era}。
+性格特点：${character.traits.join("、")}。
+${character.description}
+
+请按照这个角色的身份和性格来回复用户的消息，保持对话自然、符合角色设定。
+回复风格要口语化，不要太正式，就像日常聊天一样。
+    `.trim();
+  }
+
+  private getFallbackReply(characterId: string): string {
+    const character = getDigitalHuman(characterId);
+    const pool = mockReplies[characterId] ?? [
+      "我在听，你可以继续说。",
+    ];
+    const reply = pool[Math.floor(Math.random() * pool.length)];
+    return character ? `${reply}` : reply;
+  }
+}
+
 export class MockSoulTalkApi implements SoulTalkApi {
   async sendMessage(payload: SendMessagePayload): Promise<string> {
     const character = getDigitalHuman(payload.characterId);
@@ -42,4 +115,4 @@ export class MockSoulTalkApi implements SoulTalkApi {
   }
 }
 
-export const soulTalkApi: SoulTalkApi = new MockSoulTalkApi();
+export const soulTalkApi: SoulTalkApi = new RealSoulTalkApi();

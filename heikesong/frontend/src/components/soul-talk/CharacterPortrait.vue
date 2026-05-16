@@ -1,10 +1,20 @@
 <template>
   <div
     class="portrait-shell"
-    :class="[`variant-${variant}`, { 'has-image': showImage }]"
+    :class="[`variant-${variant}`, { 'has-image': showImage, 'has-video': showStageVideo }]"
     :style="shellStyle"
   >
     <div class="portrait-backdrop" />
+
+    <CharacterStageVideo
+      v-if="showStageVideo"
+      ref="stageVideoRef"
+      :key="animation"
+      :src="animation"
+      :poster="currentSrc"
+      :name="name"
+      @failed="onVideoFailed"
+    />
 
     <img
       v-if="showImage"
@@ -15,7 +25,7 @@
       @error="onImageError"
     />
 
-    <div v-else class="portrait-fallback">
+    <div v-if="!showImage && !showStageVideo" class="portrait-fallback">
       <span class="fallback-symbol">{{ symbol }}</span>
       <p class="fallback-title">全身立绘位</p>
       <p class="fallback-hint">
@@ -30,6 +40,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import CharacterStageVideo from "@/components/soul-talk/CharacterStageVideo.vue";
+import type { ComponentPublicInstance } from "vue";
 import { getPortraitCandidates } from "@/utils/portrait";
 
 const props = withDefaults(
@@ -37,6 +49,7 @@ const props = withDefaults(
     name: string;
     symbol: string;
     portrait: string;
+    animation?: string;
     accent?: string;
     accentSoft?: string;
     variant?: "full" | "thumb" | "stage";
@@ -48,14 +61,25 @@ const props = withDefaults(
   },
 );
 
+const stageVideoRef = ref<ComponentPublicInstance<{ play: () => void; stop: () => void }> | null>(null);
 const candidateIndex = ref(0);
 const loadExhausted = ref(false);
+const videoFailed = ref(false);
 
 const candidates = computed(() => getPortraitCandidates(props.portrait));
 
 const currentSrc = computed(() => candidates.value[candidateIndex.value] ?? "");
 
-const showImage = computed(() => !loadExhausted.value && Boolean(currentSrc.value));
+const showStageVideo = computed(
+  () => props.variant === "stage" && Boolean(props.animation) && !videoFailed.value,
+);
+
+const showImage = computed(
+  () =>
+    !loadExhausted.value &&
+    Boolean(currentSrc.value) &&
+    (props.variant !== "stage" || !props.animation || videoFailed.value),
+);
 
 const fileHint = computed(() => {
   const base = props.portrait.split("/").pop()?.replace(/\.(png|jpe?g|webp)$/i, "") ?? "角色名";
@@ -72,6 +96,14 @@ function resetLoadState() {
   loadExhausted.value = false;
 }
 
+function resetVideoState() {
+  videoFailed.value = false;
+}
+
+function onVideoFailed() {
+  videoFailed.value = true;
+}
+
 function onImageError() {
   if (candidateIndex.value < candidates.value.length - 1) {
     candidateIndex.value += 1;
@@ -86,6 +118,23 @@ watch(
     resetLoadState();
   },
 );
+
+watch(
+  () => props.animation,
+  () => {
+    resetVideoState();
+  },
+);
+
+function play() {
+  stageVideoRef.value?.play?.();
+}
+
+function stop() {
+  stageVideoRef.value?.stop?.();
+}
+
+defineExpose({ play, stop });
 </script>
 
 <style scoped>
@@ -108,8 +157,8 @@ watch(
 
 .variant-stage {
   width: 100%;
-  height: min(52vh, 480px);
-  min-height: 280px;
+  height: min(58vh, 520px);
+  min-height: 300px;
   border: none;
   background: transparent;
   border-radius: 0;
@@ -130,8 +179,9 @@ watch(
 }
 
 .variant-stage .portrait-image {
-  padding: 0 0 0.25rem;
-  filter: drop-shadow(0 12px 28px rgba(61, 41, 20, 0.15));
+  padding: 0;
+  object-position: center bottom;
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.25));
 }
 
 .variant-stage .portrait-floor {

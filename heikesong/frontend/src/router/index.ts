@@ -10,16 +10,19 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
+      meta: { transition: "page-slide" },
     },
     {
       path: "/play",
       name: "play",
       component: PlayerView,
+      meta: { transition: "page-slide" },
     },
     {
       path: "/soul-talk",
       name: "soul-talk",
       component: SoulTalkView,
+      meta: { transition: "page-slide" },
     },
   ],
 });

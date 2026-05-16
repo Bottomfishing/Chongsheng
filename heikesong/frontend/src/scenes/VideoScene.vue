@@ -21,6 +21,7 @@
         @ended="onEnded"
         @timeupdate="onTimeUpdate"
         @error="hasVideoError = true"
+        @loadeddata="videoLoaded = true"
       />
 
       <div v-else class="video-fallback">
@@ -51,6 +52,7 @@ const props = defineProps<{
 
 const hasVideoError = ref(false);
 const videoRef = ref<HTMLVideoElement | null>(null);
+const videoLoaded = ref(false);
 let triggered = false;
 
 function emitComplete() {

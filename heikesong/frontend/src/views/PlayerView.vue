@@ -25,23 +25,32 @@
         </div>
       </div>
 
-      <VideoScene
-        v-else-if="currentNode?.type === 'video'"
-        :node="currentNode"
-        @complete="goToNextVideoNode"
-      />
+      <Transition name="scene-shift" mode="out-in">
+        <VideoScene
+          v-if="currentNode?.type === 'video'"
+          :key="currentNode.id"
+          :node="currentNode"
+          @complete="goToNextVideoNode"
+        />
+      </Transition>
 
-      <ChoiceScene
-        v-else-if="currentNode?.type === 'choice'"
-        :node="currentNode"
-        @choose="commitChoice"
-      />
+      <Transition name="scene-shift" mode="out-in">
+        <ChoiceScene
+          v-if="currentNode?.type === 'choice'"
+          :key="currentNode.id"
+          :node="currentNode"
+          @choose="commitChoice"
+        />
+      </Transition>
 
-      <EndingScene
-        v-else-if="currentNode?.type === 'ending'"
-        :node="currentNode"
-        @restart="restartStory"
-      />
+      <Transition name="scene-shift" mode="out-in">
+        <EndingScene
+          v-if="currentNode?.type === 'ending'"
+          :key="currentNode.id"
+          :node="currentNode"
+          @restart="restartStory"
+        />
+      </Transition>
 
       <footer v-if="runtimeState" class="runtime-bar">
         <span>当前节点：{{ runtimeState.nodeId }}</span>
@@ -171,5 +180,22 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.scene-shift-enter-active,
+.scene-shift-leave-active {
+  transition:
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scene-shift-enter-from {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+}
+
+.scene-shift-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
 }
 </style>
