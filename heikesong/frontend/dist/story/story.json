@@ -1,0 +1,52 @@
+{
+  "startNodeId": "video_wake_up",
+  "nodes": {
+    "video_wake_up": {
+      "type": "video",
+      "src": "/videos/wake_up.mp4",
+      "title": "一觉醒来",
+      "description": "你在九十年代的硬板床上醒来，发现口袋里的手机居然还能刷抖音。",
+      "next": "choice_first_reaction"
+    },
+    "choice_first_reaction": {
+      "type": "choice",
+      "prompt": "意识到自己重生后，你第一反应是？",
+      "options": [
+        {
+          "id": "A",
+          "label": "先打开抖音看看还能不能用",
+          "next": "video_open_douyin"
+        },
+        {
+          "id": "B",
+          "label": "先确认一下现在到底是哪一年",
+          "next": "video_check_calendar"
+        }
+      ]
+    },
+    "video_open_douyin": {
+      "type": "video",
+      "src": "/videos/open_douyin.mp4",
+      "title": "打开抖音",
+      "description": "熟悉的短视频界面竟然真的亮了起来，你决定马上利用这份时代外挂。",
+      "next": "ending_village_star"
+    },
+    "video_check_calendar": {
+      "type": "video",
+      "src": "/videos/check_calendar.mp4",
+      "title": "查看日历",
+      "description": "当你确认墙上写着 1995 年时，你开始思考这次重生到底该怎么改命。",
+      "next": "ending_era_speculator"
+    },
+    "ending_village_star": {
+      "type": "ending",
+      "title": "结局 A：村口第一网红",
+      "text": "你把九十年代的日常拍成短视频，凭一己之力让整个村口提前进入“上热门”时代。"
+    },
+    "ending_era_speculator": {
+      "type": "ending",
+      "title": "结局 B：时代漏洞利用者",
+      "text": "你没有急着出名，而是先用未来视角理解时代节奏，准备下一步狠狠干一票大的。"
+    }
+  }
+}
