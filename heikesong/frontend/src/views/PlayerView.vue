@@ -3,7 +3,11 @@
     <section class="player-panel">
       <div class="player-topbar">
         <RouterLink class="text-link" to="/">返回首页</RouterLink>
-        <button class="text-link" type="button" @click="restartStory">重新开始</button>
+        <div class="player-actions">
+          <button class="text-link" type="button" @click="openSave">保存</button>
+          <button class="text-link" type="button" @click="openLoad">读取</button>
+          <button class="text-link" type="button" @click="restartStory">重新开始</button>
+        </div>
       </div>
 
       <div v-if="isLoading" class="scene-card loading-card">
@@ -44,6 +48,14 @@
         <span>最近更新：{{ formattedUpdatedAt }}</span>
       </footer>
     </section>
+
+    <SaveLoadMenu
+      :visible="menuVisible"
+      :mode="menuMode"
+      :current-state="runtimeState"
+      @close="menuVisible = false"
+      @load="handleLoadSave"
+    />
   </main>
 </template>
 
@@ -55,6 +67,7 @@ import type { RuntimeState, StoryNode, VideoNode } from "@/engine/types";
 import ChoiceScene from "@/scenes/ChoiceScene.vue";
 import EndingScene from "@/scenes/EndingScene.vue";
 import VideoScene from "@/scenes/VideoScene.vue";
+import SaveLoadMenu from "@/components/SaveLoadMenu.vue";
 
 const route = useRoute();
 
@@ -63,6 +76,8 @@ const currentNode = ref<StoryNode | null>(null);
 const runtimeState = ref<RuntimeState | null>(null);
 const isLoading = ref(true);
 const errorMessage = ref("");
+const menuVisible = ref(false);
+const menuMode = ref<"save" | "load">("save");
 
 const formattedUpdatedAt = computed(() => {
   if (!runtimeState.value) {
@@ -85,15 +100,15 @@ function syncFromEngine() {
   runtimeState.value = engine.value.getState();
 }
 
-async function bootStory() {
+async function bootStory(resumeState?: RuntimeState) {
   isLoading.value = true;
   errorMessage.value = "";
 
   try {
-    const loadedEngine = await StoryEngine.load();
+    const loadedEngine = await StoryEngine.load(resumeState);
     engine.value = loadedEngine;
 
-    if (route.query.restart === "1") {
+    if (route.query.restart === "1" && !resumeState) {
       loadedEngine.reset();
     }
 
@@ -132,7 +147,29 @@ function restartStory() {
   syncFromEngine();
 }
 
+function openSave() {
+  menuMode.value = "save";
+  menuVisible.value = true;
+}
+
+function openLoad() {
+  menuMode.value = "load";
+  menuVisible.value = true;
+}
+
+function handleLoadSave(state: RuntimeState) {
+  bootStory(state);
+}
+
 onMounted(() => {
   bootStory();
 });
 </script>
+
+<style scoped>
+.player-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>

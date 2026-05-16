@@ -15,7 +15,7 @@ export class StoryEngine {
     private state: RuntimeState,
   ) {}
 
-  static async load(): Promise<StoryEngine> {
+  static async load(resumeState?: RuntimeState): Promise<StoryEngine> {
     const response = await fetch("/story/story.json", { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Failed to load story: ${response.status}`);
@@ -24,11 +24,16 @@ export class StoryEngine {
     const story = (await response.json()) as StoryDefinition;
     StoryEngine.assertStory(story);
 
-    const restoredState = loadRuntimeState();
-    const state =
-      restoredState && story.nodes[restoredState.nodeId]
-        ? createState(restoredState.nodeId, restoredState.choiceLog)
-        : createState(story.startNodeId);
+    let state: RuntimeState;
+    if (resumeState && story.nodes[resumeState.nodeId]) {
+      state = createState(resumeState.nodeId, resumeState.choiceLog);
+    } else {
+      const restoredState = loadRuntimeState();
+      state =
+        restoredState && story.nodes[restoredState.nodeId]
+          ? createState(restoredState.nodeId, restoredState.choiceLog)
+          : createState(story.startNodeId);
+    }
 
     saveRuntimeState(state);
     return new StoryEngine(story, state);

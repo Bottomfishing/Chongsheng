@@ -6,20 +6,21 @@
       "src": "/videos/wake_up.mp4",
       "title": "一觉醒来",
       "description": "你在九十年代的硬板床上醒来，发现口袋里的手机居然还能刷抖音。",
-      "next": "choice_first_reaction"
+      "triggerTime": 8,
+      "next": "choice_wake_up"
     },
-    "choice_first_reaction": {
+    "choice_wake_up": {
       "type": "choice",
-      "prompt": "意识到自己重生后，你第一反应是？",
+      "prompt": "你发现自己重生回了1995年，口袋里的手机竟然还能刷抖音。你的第一反应是？",
       "options": [
         {
           "id": "A",
-          "label": "先打开抖音看看还能不能用",
+          "label": "先打开抖音看看",
           "next": "video_open_douyin"
         },
         {
           "id": "B",
-          "label": "先确认一下现在到底是哪一年",
+          "label": "看看日历现在几几年",
           "next": "video_check_calendar"
         }
       ]
@@ -28,25 +29,67 @@
       "type": "video",
       "src": "/videos/open_douyin.mp4",
       "title": "打开抖音",
-      "description": "熟悉的短视频界面竟然真的亮了起来，你决定马上利用这份时代外挂。",
-      "next": "ending_village_star"
+      "description": "熟悉的短视频界面竟然真的亮了起来。",
+      "next": "choice_open_douyin"
+    },
+    "choice_open_douyin": {
+      "type": "choice",
+      "prompt": "你打开抖音，短视频界面真的亮了起来。接下来你打算怎么利用这个'时代外挂'？",
+      "options": [
+        {
+          "id": "A",
+          "label": "拍个视频发到村里",
+          "next": "ending_village_broadcast"
+        },
+        {
+          "id": "B",
+          "label": "去县城找网吧直播",
+          "next": "ending_county_stream"
+        }
+      ]
     },
     "video_check_calendar": {
       "type": "video",
       "src": "/videos/check_calendar.mp4",
       "title": "查看日历",
-      "description": "当你确认墙上写着 1995 年时，你开始思考这次重生到底该怎么改命。",
-      "next": "ending_era_speculator"
+      "description": "当你确认墙上写着1995年时，你开始思考这次重生该怎么改命。",
+      "next": "choice_check_calendar"
     },
-    "ending_village_star": {
-      "type": "ending",
-      "title": "结局 A：村口第一网红",
-      "text": "你把九十年代的日常拍成短视频，凭一己之力让整个村口提前进入“上热门”时代。"
+    "choice_check_calendar": {
+      "type": "choice",
+      "prompt": "你确认现在是1995年，开始思考这次重生该怎么改命。你决定先做什么？",
+      "options": [
+        {
+          "id": "A",
+          "label": "去找当年的自己",
+          "next": "ending_find_self"
+        },
+        {
+          "id": "B",
+          "label": "先去买股票",
+          "next": "ending_buy_stocks"
+        }
+      ]
     },
-    "ending_era_speculator": {
+    "ending_village_broadcast": {
       "type": "ending",
-      "title": "结局 B：时代漏洞利用者",
-      "text": "你没有急着出名，而是先用未来视角理解时代节奏，准备下一步狠狠干一票大的。"
+      "title": "结局：村口第一网红",
+      "text": "你把九十年代的日常拍成短视频，凭一己之力让整个村口提前进入'上热门'时代。"
+    },
+    "ending_county_stream": {
+      "type": "ending",
+      "title": "结局：县城直播先驱",
+      "text": "你来到县城网吧，开启了中国最早的直播生涯，成为一代传奇。"
+    },
+    "ending_find_self": {
+      "type": "ending",
+      "title": "结局：遇见当年的自己",
+      "text": "你找到了1995年的自己，两个灵魂相遇，决定一起改变未来。"
+    },
+    "ending_buy_stocks": {
+      "type": "ending",
+      "title": "结局：股神重生",
+      "text": "你利用未来的知识炒股，成为了九十年代的首富，但似乎错过了更重要的东西。"
     }
   }
 }

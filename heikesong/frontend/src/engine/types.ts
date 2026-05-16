@@ -6,6 +6,7 @@ export interface VideoNode {
   next: string;
   title?: string;
   description?: string;
+  triggerTime?: number;
 }
 
 export interface ChoiceOption {

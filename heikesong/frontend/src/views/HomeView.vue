@@ -40,11 +40,18 @@
           </div>
 
           <div class="action-area">
-            <button class="start-btn" type="button" :disabled="!typewriterDone" @click="enterIntro">
+            <button
+              class="start-btn"
+              type="button"
+              :disabled="!typewriterDone"
+              @click="enterIntro"
+            >
               <span class="btn-border">
                 <span class="btn-inner">
                   <span class="btn-icon">&#9654;</span>
-                  <span>{{ typewriterDone ? "开始重生" : "系统加载中..." }}</span>
+                  <span>{{
+                    typewriterDone ? "开始重生" : "系统加载中..."
+                  }}</span>
                 </span>
               </span>
             </button>
@@ -64,20 +71,38 @@
         </div>
 
         <Transition name="fade">
-          <div v-if="showAbout" class="modal-overlay" @click.self="showAbout = false">
+          <div
+            v-if="showAbout"
+            class="modal-overlay"
+            @click.self="showAbout = false"
+          >
             <div class="modal-panel">
               <div class="modal-header">
                 <h3>关于重生</h3>
-                <button class="modal-close" type="button" @click="showAbout = false">&times;</button>
+                <button
+                  class="modal-close"
+                  type="button"
+                  @click="showAbout = false"
+                >
+                  &times;
+                </button>
               </div>
               <div class="modal-body">
                 <p>这是一段荒诞又上头的穿越体验。</p>
                 <p>你重生回了九十年代，却发现口袋里的手机还能刷抖音。</p>
-                <p>在没有流量、没有直播带货、没有短视频平台规则的年代，你准备怎么玩？</p>
+                <p>
+                  在没有流量、没有直播带货、没有短视频平台规则的年代，你准备怎么玩？
+                </p>
                 <p>每一个选择，都会把你带向完全不同的命运分支。</p>
               </div>
               <div class="modal-footer">
-                <button class="modal-btn" type="button" @click="showAbout = false">知道了</button>
+                <button
+                  class="modal-btn"
+                  type="button"
+                  @click="showAbout = false"
+                >
+                  知道了
+                </button>
               </div>
             </div>
           </div>
@@ -89,21 +114,50 @@
       <section v-if="stage === 'intro'" class="intro-video">
         <div v-if="scene === 'static'" class="tv-static">
           <div class="tv-frame">
+            <div class="tv-antennas">
+              <div class="antenna left">
+                <div class="antenna-base" />
+                <div class="antenna-rod" />
+                <div class="antenna-coil" />
+              </div>
+              <div class="antenna right">
+                <div class="antenna-base" />
+                <div class="antenna-rod" />
+                <div class="antenna-coil" />
+              </div>
+            </div>
             <div class="tv-brand">重生牌</div>
             <div class="tv-screen-bezel">
               <canvas ref="staticCanvas" class="static-canvas" />
               <div class="scanlines" />
               <div class="screen-glow" />
+              <div class="screen-reflection" />
             </div>
             <div class="tv-controls">
-              <div class="knob" />
-              <div class="knob" />
+              <div class="knob">
+                <div class="knob-indicator" />
+              </div>
+              <div class="knob">
+                <div class="knob-indicator" />
+              </div>
               <div class="speaker-grill">
                 <span v-for="n in 6" :key="n" class="grill-line" />
               </div>
             </div>
+            <div class="tv-feet">
+              <div class="foot left" />
+              <div class="foot right" />
+            </div>
           </div>
           <div class="status-text">信号接入中...</div>
+          <div class="signal-indicator">
+            <span
+              v-for="n in 5"
+              :key="n"
+              class="signal-bar"
+              :class="{ active: n <= signalStrength }"
+            />
+          </div>
         </div>
 
         <div v-if="scene === 'title'" class="title-scene">
@@ -132,7 +186,12 @@
         </div>
 
         <Transition name="fade">
-          <button v-if="canSkip" class="skip-btn" type="button" @click="enterHome">
+          <button
+            v-if="canSkip"
+            class="skip-btn"
+            type="button"
+            @click="enterHome"
+          >
             跳过 &#9654;&#9654;
           </button>
         </Transition>
@@ -168,34 +227,58 @@
           </div>
 
           <div class="card-grid">
-            <button class="feature-card primary" type="button" @click="startGame">
+            <button
+              class="feature-card primary"
+              type="button"
+              @click="startGame"
+            >
               <div class="card-icon">&#9654;</div>
               <h3 class="card-title">剧情模式</h3>
-              <p class="card-desc">继续你的重生之旅，每一次选择都会改写这场九十年代实验。</p>
+              <p class="card-desc">
+                继续你的重生之旅，每一次选择都会改写这场九十年代实验。
+              </p>
               <div class="card-status">
                 <span class="status-dot active" />
                 <span>主线入口：短视频主剧情</span>
               </div>
             </button>
 
-            <button class="feature-card" type="button" @click="showComingSoon('时光相册')">
+            <button
+              class="feature-card"
+              type="button"
+              @click="showComingSoon('时光相册')"
+            >
               <div class="card-icon">&#10022;</div>
               <h3 class="card-title">时光相册</h3>
-              <p class="card-desc">记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。</p>
+              <p class="card-desc">
+                记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。
+              </p>
               <div class="card-tag">即将开放</div>
             </button>
 
-            <button class="feature-card" type="button" @click="showComingSoon('重生商店')">
+            <button
+              class="feature-card"
+              type="button"
+              @click="showComingSoon('重生商店')"
+            >
               <div class="card-icon">&#9733;</div>
               <h3 class="card-title">重生商店</h3>
-              <p class="card-desc">用你的选择结果兑换时代 Buff，让下一次重生更离谱一点。</p>
+              <p class="card-desc">
+                用你的选择结果兑换时代 Buff，让下一次重生更离谱一点。
+              </p>
               <div class="card-tag">即将开放</div>
             </button>
 
-            <button class="feature-card" type="button" @click="showComingSoon('成就墙')">
+            <button
+              class="feature-card"
+              type="button"
+              @click="showComingSoon('成就墙')"
+            >
               <div class="card-icon">&#9670;</div>
               <h3 class="card-title">成就墙</h3>
-              <p class="card-desc">解锁“村口第一网红”“录像厅顶流”“县城直播先驱”等时代成就。</p>
+              <p class="card-desc">
+                解锁“村口第一网红”“录像厅顶流”“县城直播先驱”等时代成就。
+              </p>
               <div class="card-tag">即将开放</div>
             </button>
           </div>
@@ -225,18 +308,34 @@
           <button class="footer-btn" type="button" @click="backToLanding">
             <span class="btn-label">返回封面</span>
           </button>
-          <button class="footer-btn" type="button" @click="showComingSoon('系统设置')">
+          <button
+            class="footer-btn"
+            type="button"
+            @click="showComingSoon('系统设置')"
+          >
             <span class="btn-label">系统设置</span>
           </button>
         </footer>
 
         <Transition name="fade">
-          <div v-if="comingSoonVisible" class="toast-overlay" @click.self="comingSoonVisible = false">
+          <div
+            v-if="comingSoonVisible"
+            class="toast-overlay"
+            @click.self="comingSoonVisible = false"
+          >
             <div class="toast-panel">
               <div class="toast-icon">&#10022;</div>
-              <p class="toast-text">“{{ comingSoonName }}”功能还在穿越时空的路上...</p>
+              <p class="toast-text">
+                “{{ comingSoonName }}”功能还在穿越时空的路上...
+              </p>
               <p class="toast-sub">敬请期待！</p>
-              <button class="toast-btn" type="button" @click="comingSoonVisible = false">好的</button>
+              <button
+                class="toast-btn"
+                type="button"
+                @click="comingSoonVisible = false"
+              >
+                好的
+              </button>
             </div>
           </div>
         </Transition>
@@ -271,6 +370,9 @@ const progress = ref(0);
 const canSkip = ref(false);
 const countdownNum = ref(3);
 const staticCanvas = ref<HTMLCanvasElement | null>(null);
+const signalStrength = ref(2);
+
+let signalInterval: ReturnType<typeof setInterval> | null = null;
 
 let typewriterInterval: ReturnType<typeof setInterval> | null = null;
 let introStaticInterval: ReturnType<typeof setInterval> | null = null;
@@ -325,8 +427,13 @@ function startIntroSequence() {
   progress.value = 0;
   canSkip.value = false;
   countdownNum.value = 3;
+  signalStrength.value = 2;
 
   startStaticNoise();
+
+  signalInterval = setInterval(() => {
+    signalStrength.value = Math.floor(Math.random() * 5) + 1;
+  }, 300);
 
   const startedAt = Date.now();
   introProgressInterval = setInterval(() => {
@@ -366,6 +473,11 @@ function clearIntroSequence() {
   if (introProgressInterval) {
     clearInterval(introProgressInterval);
     introProgressInterval = null;
+  }
+
+  if (signalInterval) {
+    clearInterval(signalInterval);
+    signalInterval = null;
   }
 
   introTimers.forEach((timer) => clearTimeout(timer));
@@ -440,7 +552,8 @@ defineExpose({
 .home-flow {
   width: 100%;
   min-height: 100vh;
-  font-family: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
+  font-family:
+    "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
 }
 
 .landing-page,
@@ -463,9 +576,21 @@ defineExpose({
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(201, 169, 110, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(201, 169, 110, 0.06) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 80%, rgba(139, 69, 19, 0.04) 0%, transparent 50%),
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(201, 169, 110, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(201, 169, 110, 0.06) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(139, 69, 19, 0.04) 0%,
+      transparent 50%
+    ),
     #faf8f5;
 }
 
@@ -823,7 +948,7 @@ defineExpose({
 .tv-static,
 .countdown-scene {
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .static-canvas {
@@ -836,21 +961,140 @@ defineExpose({
 .tv-frame {
   position: relative;
   padding: 20px 20px 30px;
-  background: #8b7355;
+  background: linear-gradient(180deg, #9a8368 0%, #8b7355 50%, #7a634a 100%);
   border-radius: 12px;
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    0 10px 40px rgba(0, 0, 0, 0.5);
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tv-brand {
   position: absolute;
   bottom: 6px;
   left: 50%;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.6rem;
   letter-spacing: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   transform: translateX(-50%);
+}
+
+.tv-antennas {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 50px;
+}
+
+.antenna {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.antenna.left {
+  transform: rotate(-20deg) translateX(-4px);
+  animation: antenna-wave 2s ease-in-out infinite;
+}
+
+.antenna.right {
+  transform: rotate(20deg) translateX(4px);
+  animation: antenna-wave-right 2s ease-in-out infinite;
+}
+
+@keyframes antenna-wave {
+  0%,
+  100% {
+    transform: rotate(-20deg) translateX(-4px);
+  }
+  50% {
+    transform: rotate(-16deg) translateX(-4px);
+  }
+}
+
+@keyframes antenna-wave-right {
+  0%,
+  100% {
+    transform: rotate(20deg) translateX(4px);
+  }
+  50% {
+    transform: rotate(16deg) translateX(4px);
+  }
+}
+
+.antenna-base {
+  width: 16px;
+  height: 12px;
+  background: linear-gradient(180deg, #8b7355 0%, #6b5a45 50%, #5a4a35 100%);
+  border-radius: 2px 2px 4px 4px;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+  margin-top: -2px;
+}
+
+.antenna-rod {
+  width: 3px;
+  height: 40px;
+  background: linear-gradient(
+    180deg,
+    #d4c4a8 0%,
+    #c9a96e 30%,
+    #8b7355 70%,
+    #6b5a45 100%
+  );
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.antenna-coil {
+  position: absolute;
+  top: 15px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #c9a96e;
+  border-radius: 50%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.tv-feet {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 100px;
+}
+
+.foot {
+  width: 40px;
+  height: 14px;
+  background: linear-gradient(180deg, #7a634a 0%, #5a4a35 100%);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.screen-reflection {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: 40px / 20px;
 }
 
 .tv-screen-bezel {
@@ -880,7 +1124,11 @@ defineExpose({
   position: absolute;
   inset: 0;
   z-index: 3;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
+  );
 }
 
 .tv-controls {
@@ -892,12 +1140,28 @@ defineExpose({
 }
 
 .knob {
-  width: 20px;
-  height: 20px;
-  background: #6b5a45;
-  border: 2px solid #5a4a35;
+  position: relative;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(180deg, #7a634a 0%, #5a4a35 50%, #4a3728 100%);
+  border: 2px solid #3d2914;
   border-radius: 50%;
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.knob-indicator {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 8px;
+  background: #c9a96e;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .speaker-grill {
@@ -918,6 +1182,46 @@ defineExpose({
   font-size: 0.85rem;
   letter-spacing: 4px;
   animation: blink-text 1s step-end infinite;
+  text-shadow: 0 0 10px rgba(201, 169, 110, 0.3);
+}
+
+.signal-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.signal-bar {
+  width: 6px;
+  height: 4px;
+  background: rgba(201, 169, 110, 0.3);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.signal-bar.active {
+  background: linear-gradient(180deg, #c9a96e 0%, #8b7355 100%);
+  box-shadow: 0 0 6px rgba(201, 169, 110, 0.5);
+}
+
+.signal-bar:nth-child(1) {
+  height: 6px;
+}
+.signal-bar:nth-child(2) {
+  height: 10px;
+}
+.signal-bar:nth-child(3) {
+  height: 14px;
+}
+.signal-bar:nth-child(4) {
+  height: 18px;
+}
+.signal-bar:nth-child(5) {
+  height: 22px;
 }
 
 @keyframes blink-text {
@@ -968,7 +1272,8 @@ defineExpose({
   font-weight: 400;
   letter-spacing: 4px;
   line-height: 1.3;
-  font-family: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
+  font-family:
+    "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
   text-shadow: 0 0 20px rgba(201, 169, 110, 0.3);
 }
 

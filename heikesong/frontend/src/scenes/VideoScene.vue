@@ -11,13 +11,15 @@
     <div class="video-frame">
       <video
         v-if="!hasVideoError"
+        ref="videoRef"
         :key="node.src"
         class="story-video"
         :src="node.src"
         controls
         playsinline
         preload="metadata"
-        @ended="$emit('complete')"
+        @ended="onEnded"
+        @timeupdate="onTimeUpdate"
         @error="hasVideoError = true"
       />
 
@@ -28,7 +30,7 @@
     </div>
 
     <div class="scene-actions">
-      <button class="primary-button" type="button" @click="$emit('complete')">
+      <button class="primary-button" type="button" @click="emitComplete">
         {{ hasVideoError ? "继续到下一段" : "跳过视频继续" }}
       </button>
     </div>
@@ -39,7 +41,7 @@
 import { ref, watch } from "vue";
 import type { VideoNode } from "@/engine/types";
 
-defineEmits<{
+const emit = defineEmits<{
   complete: [];
 }>();
 
@@ -48,11 +50,39 @@ const props = defineProps<{
 }>();
 
 const hasVideoError = ref(false);
+const videoRef = ref<HTMLVideoElement | null>(null);
+let triggered = false;
+
+function emitComplete() {
+  emit("complete");
+}
+
+function onEnded() {
+  if (!triggered) {
+    triggered = true;
+    emitComplete();
+  }
+}
+
+function onTimeUpdate() {
+  const video = videoRef.value;
+  if (!video || triggered) {
+    return;
+  }
+
+  const triggerTime = props.node.triggerTime;
+  if (triggerTime && video.currentTime >= triggerTime) {
+    triggered = true;
+    video.pause();
+    emitComplete();
+  }
+}
 
 watch(
   () => props.node.src,
   () => {
     hasVideoError.value = false;
+    triggered = false;
   },
 );
 </script>
