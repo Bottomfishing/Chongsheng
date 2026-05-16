@@ -610,29 +610,29 @@ defineExpose({
 }
 
 .frame-corner.tl {
-  top: 24px;
-  left: 24px;
+  top: 8px;
+  left: 8px;
   border-right: none;
   border-bottom: none;
 }
 
 .frame-corner.tr {
-  top: 24px;
-  right: 24px;
+  top: 8px;
+  right: 8px;
   border-left: none;
   border-bottom: none;
 }
 
 .frame-corner.bl {
-  bottom: 24px;
-  left: 24px;
+  bottom: 8px;
+  left: 8px;
   border-right: none;
   border-top: none;
 }
 
 .frame-corner.br {
-  bottom: 24px;
-  right: 24px;
+  bottom: 8px;
+  right: 8px;
   border-left: none;
   border-top: none;
 }
