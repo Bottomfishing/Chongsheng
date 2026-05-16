@@ -282,13 +282,18 @@
         </header>
 
         <main class="main-content">
-          <div class="hub-container">
-            <header class="welcome-section">
-              <p class="welcome-kicker">1995 · 重生档案已同步</p>
-              <h2 class="welcome-title">欢迎回来，重生者</h2>
-              <p class="welcome-sub">今天是你在九十年代的第 1 天</p>
-            </header>
+          <div class="welcome-section">
+            <p class="welcome-kicker">1995 · 重生档案已同步</p>
+            <h2 class="welcome-title">欢迎回来，重生者</h2>
+            <p class="welcome-sub">今天是你在九十年代的第 1 天</p>
+            <div class="welcome-divider" aria-hidden="true">
+              <span class="divider-line" />
+              <span class="divider-gem">&#10022;</span>
+              <span class="divider-line" />
+            </div>
+          </div>
 
+          <div class="hub-container">
             <section class="hub-section" aria-label="功能入口">
               <div class="section-head">
                 <span class="section-line" />
@@ -344,14 +349,14 @@
                   type="button"
                   @mousemove="handleCardMove"
                   @mouseleave="handleCardLeave"
-                  @click="showComingSoon('时光相册')"
+                  @click="goAlbum"
                 >
                   <div class="card-content">
                     <h3 class="card-title">时光相册</h3>
                     <p class="card-desc">
                       记录你在九十年代刷抖音、拍短视频、搅动时代的精彩瞬间。
                     </p>
-                    <div class="card-tag">即将开放</div>
+                    <div class="card-tag card-tag-live">查看相册</div>
                   </div>
                 </button>
 
@@ -360,14 +365,14 @@
                   type="button"
                   @mousemove="handleCardMove"
                   @mouseleave="handleCardLeave"
-                  @click="showComingSoon('成就墙')"
+                  @click="goAchievements"
                 >
                   <div class="card-content">
                     <h3 class="card-title">成就墙</h3>
                     <p class="card-desc">
                       解锁"村口第一网红""录像厅顶流""县城直播先驱"等时代成就。
                     </p>
-                    <div class="card-tag">即将开放</div>
+                    <div class="card-tag card-tag-live">查看成就</div>
                   </div>
                 </button>
               </div>
@@ -450,11 +455,22 @@
         </div>
       </div>
     </Transition>
+
+    <WalkingTikTok v-if="isHomePage" @click="isChatOpen = true" />
+
+    <TikTokChatDialog :isOpen="isChatOpen" @close="isChatOpen = false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, computed } from "vue";
+import { useRoute } from "vue-router";
+import WalkingTikTok from "@/components/WalkingTikTok.vue";
+import TikTokChatDialog from "@/components/TikTokChatDialog.vue";
+
+const route = useRoute();
+const isHomePage = computed(() => route.name === "home");
+const isChatOpen = ref(false);
 
 function handleCardMove(e: MouseEvent) {
   const el = e.currentTarget as HTMLElement;
@@ -881,6 +897,14 @@ function goSoulTalk() {
   router.push("/soul-talk");
 }
 
+function goAlbum() {
+  router.push("/album");
+}
+
+function goAchievements() {
+  router.push("/achievements");
+}
+
 function resumeGame() {
   const savedState = loadRuntimeState();
   router.push(savedState?.nodeId ? "/play?resume=1" : "/play");
@@ -941,20 +965,21 @@ defineExpose({
 .paper-bg {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
     radial-gradient(
       ellipse at 20% 50%,
-      rgba(201, 169, 110, 0.08) 0%,
+      rgba(201, 169, 110, 0.12) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse at 80% 20%,
-      rgba(201, 169, 110, 0.06) 0%,
+      rgba(201, 169, 110, 0.09) 0%,
       transparent 40%
     ),
     radial-gradient(
       ellipse at 50% 80%,
-      rgba(139, 69, 19, 0.04) 0%,
+      rgba(139, 69, 19, 0.06) 0%,
       transparent 50%
     );
 }
@@ -962,7 +987,7 @@ defineExpose({
 .grain-overlay {
   position: absolute;
   inset: 0;
-  opacity: 0.03;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   pointer-events: none;
 }
@@ -2097,17 +2122,26 @@ defineExpose({
   display: flex;
   flex-direction: column;
   background: rgba(250, 248, 245, 0.88);
-  --hub-pad-x: clamp(4.5rem, 7vw, 5.5rem);
+  --hub-pad-x: clamp(1.25rem, 4vw, 2.75rem);
+  --font-display: "LXGW WenKai", "STKaiti", "KaiTi", "楷体", serif;
+  --font-welcome:
+    "LXGW WenKai", "STXingkai", "KaiTi", "楷体", "Noto Serif SC", serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  font-family: var(--font-serif);
 }
 
 .top-bar {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem var(--hub-pad-x);
+  padding: 0.9rem var(--hub-pad-x);
+  background: rgba(255, 252, 247, 0.72);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(201, 169, 110, 0.3);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .logo {
@@ -2123,9 +2157,10 @@ defineExpose({
 
 .logo-text {
   color: #3d2914;
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
   font-weight: 400;
-  letter-spacing: 3px;
+  letter-spacing: 0.12em;
 }
 
 .date-display {
@@ -2142,51 +2177,102 @@ defineExpose({
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 1.25rem var(--hub-pad-x) 1.5rem;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: clamp(1.5rem, 4vh, 2.5rem) var(--hub-pad-x) 1.75rem;
   overflow-y: auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .hub-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 820px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .welcome-section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 820px;
+  margin: 0;
+  padding: 0;
   text-align: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
 }
 
 .welcome-kicker {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.65rem;
   color: #b8924a;
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
 }
 
 .welcome-title {
-  margin: 0 0 0.35rem;
-  color: #3d2914;
-  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  margin: 0 0 0.55rem;
+  color: #4a3218;
+  font-family: var(--font-welcome);
+  font-size: clamp(2rem, 5vw, 2.75rem);
   font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
 }
 
 .welcome-sub {
-  margin: 0;
-  color: #8b7355;
-  font-size: 0.88rem;
-  letter-spacing: 0.06em;
+  margin: 0 0 1.35rem;
+  color: #6b5344;
+  font-size: clamp(0.92rem, 2vw, 1.02rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.6;
+}
+
+.welcome-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 169, 110, 0.65),
+    transparent
+  );
+}
+
+.divider-gem {
+  flex-shrink: 0;
+  color: #c9a96e;
+  font-size: 0.75rem;
+  opacity: 0.85;
 }
 
 .hub-section {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
   overflow: visible;
+  padding-top: 0.25rem;
 }
 
 .section-head {
@@ -2209,9 +2295,10 @@ defineExpose({
 .section-label {
   margin: 0;
   color: #8b7355;
-  font-size: 0.72rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
   font-weight: 400;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.28em;
   white-space: nowrap;
 }
 
@@ -2475,8 +2562,9 @@ defineExpose({
 .feature-card.primary .card-title {
   margin: 0;
   color: #3d2914;
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
   letter-spacing: 0.1em;
 }
 
@@ -2530,9 +2618,10 @@ defineExpose({
 .card-title {
   margin: 0.6rem 0 0.7rem;
   color: #3d2914;
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: 3px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   transition:
     color 0.3s ease,
     transform 0.3s ease;
@@ -2620,8 +2709,10 @@ defineExpose({
 
 .info-value {
   color: #3d2914;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
 }
 
 .info-divider {
@@ -2699,9 +2790,18 @@ defineExpose({
   opacity: 0;
 }
 
+.frame-corner {
+  z-index: 0;
+}
+
+.home-page .frame-corner.tl,
+.home-page .frame-corner.tr {
+  top: 12px;
+}
+
 @media (max-width: 720px) {
   .home-page {
-    --hub-pad-x: 1.25rem;
+    --hub-pad-x: 1.15rem;
   }
 
   .card-grid {

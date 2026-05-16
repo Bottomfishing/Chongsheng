@@ -1,8 +1,8 @@
 import type { DigitalHuman } from "@/types/soulTalk";
 
 /**
- * 立绘：frontend/public/characters/{id}.png
- * 动画：frontend/public/characters/animations/{id}.mp4
+ * 立绘/动画文件名与角色 id 不完全一致时，以 portrait / animation 字段为准。
+ * 牛天真 = 粉色上衣（a-ning 资源）；阿宁 = 白衣牛仔裤（niu-tianzhen 资源）
  * 顺序：牛天真 → 李天佐 → 费启暗 → 阿宁
  */
 export const digitalHumans: DigitalHuman[] = [
@@ -19,8 +19,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#b86b7a",
     accentSoft: "rgba(184, 107, 122, 0.16)",
     symbol: "牛",
-    portrait: "/characters/niu-tianzhen.png",
-    animation: "/characters/animations/niu-tianzhen.mp4",
+    portrait: "/characters/a-ning.png",
+    animation: "/characters/animations/a-ning.mp4",
   },
   {
     id: "li-tianzuo",
@@ -67,8 +67,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#c9a06e",
     accentSoft: "rgba(201, 160, 110, 0.16)",
     symbol: "宁",
-    portrait: "/characters/a-ning.png",
-    animation: "/characters/animations/a-ning.mp4",
+    portrait: "/characters/niu-tianzhen.png",
+    animation: "/characters/animations/niu-tianzhen.mp4",
   },
 ];
 

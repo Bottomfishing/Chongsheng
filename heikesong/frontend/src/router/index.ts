@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import PlayerView from "@/views/PlayerView.vue";
 import SoulTalkView from "@/views/SoulTalkView.vue";
+import AchievementView from "@/views/AchievementView.vue";
+import AlbumView from "@/views/AlbumView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -22,6 +24,18 @@ const router = createRouter({
       path: "/soul-talk",
       name: "soul-talk",
       component: SoulTalkView,
+      meta: { transition: "page-slide" },
+    },
+    {
+      path: "/achievements",
+      name: "achievements",
+      component: AchievementView,
+      meta: { transition: "page-slide" },
+    },
+    {
+      path: "/album",
+      name: "album",
+      component: AlbumView,
       meta: { transition: "page-slide" },
     },
   ],

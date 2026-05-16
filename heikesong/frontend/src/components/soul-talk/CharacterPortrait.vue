@@ -13,6 +13,7 @@
       :src="animation"
       :poster="currentSrc"
       :name="name"
+      :accent="accent"
       @failed="onVideoFailed"
     />
 

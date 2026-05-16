@@ -1,5 +1,7 @@
 :root {
   color-scheme: light;
+  /* 全局复古底图可见度（0–1，数值越大底图越明显） */
+  --bg-vintage-opacity: 0.3;
   font-family: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
   line-height: 1.5;
   font-weight: 400;
@@ -30,7 +32,7 @@ body::before {
   inset: 0;
   z-index: 0;
   background: url("/images/bg-vintage.jpg") center / cover no-repeat fixed;
-  opacity: 0.2;
+  opacity: var(--bg-vintage-opacity);
   pointer-events: none;
 }
 
@@ -315,6 +317,7 @@ h2 {
 }
 
 .paper-bg {
+  pointer-events: none;
   background:
     radial-gradient(circle at 20% 25%, rgba(179, 132, 77, 0.08), transparent 26%),
     radial-gradient(circle at 82% 18%, rgba(179, 132, 77, 0.06), transparent 22%),

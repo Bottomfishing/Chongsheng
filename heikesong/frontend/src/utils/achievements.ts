@@ -18,30 +18,6 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: "在加载页面砸碎那台老电视",
     icon: "📺",
   },
-  {
-    id: "first_choice",
-    name: "命运的齿轮",
-    description: "做出你的第一个选择",
-    icon: "⚙️",
-  },
-  {
-    id: "complete_story",
-    name: "九十年代的过客",
-    description: "完整体验一次重生之旅",
-    icon: "🎬",
-  },
-  {
-    id: "soul_talk_first",
-    name: "心灵捕手",
-    description: "与 SoulTalk 中的角色完成第一次对话",
-    icon: "💬",
-  },
-  {
-    id: "all_endings",
-    name: "全知者",
-    description: "解锁所有结局",
-    icon: "🏆",
-  },
 ];
 
 const STORAGE_KEY = "chongsheng_achievements";

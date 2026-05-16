@@ -1,0 +1,610 @@
+<template>
+  <div
+    class="walking-tiktok"
+    :class="[currentState, { dragging: isDragging, landed: isLanded }]"
+    :style="positionStyle"
+    @mousedown="startDrag"
+    @click.stop="handleClick"
+  >
+    <div class="tiktok-body">
+      <div class="tiktok-head">
+        <svg class="tiktok-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+        </svg>
+        <div class="tiktok-eyes">
+          <span class="eye eye-left"></span>
+          <span class="eye eye-right"></span>
+        </div>
+        <div class="eye-brow left-brow" :class="{ raised: isThinking }"></div>
+        <div class="eye-brow right-brow" :class="{ raised: isThinking }"></div>
+      </div>
+      <div class="thinking-bubble" v-if="isThinking">
+        <div class="thought-content">
+          <span class="thought-dot" v-for="n in 3" :key="n"></span>
+        </div>
+      </div>
+      <div class="mood-indicator" v-if="!isThinking && !isWalking && !isDragging">
+        <span class="mood-emoji">{{ moodEmoji }}</span>
+      </div>
+    </div>
+    <div class="tiktok-legs">
+      <div class="leg leg-left" :class="{ stepping: isWalking && !isDragging }"></div>
+      <div class="leg leg-right" :class="{ stepping: isWalking && !isDragging }"></div>
+    </div>
+    <div class="tiktok-shadow" :class="{ walking: isWalking && !isDragging, dragging: isDragging }"></div>
+    <div class="click-hint" v-if="!isDragging">拖拽/点击</div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from "vue";
+
+const emit = defineEmits<{
+  (e: "click"): void;
+}>();
+
+const isWalking = ref(false);
+const isThinking = ref(false);
+const isDragging = ref(false);
+const isDragged = ref(false);
+const isLanded = ref(false);
+const position = ref(-60);
+const topPosition = ref<number | null>(null);
+
+const moodIndex = ref(0);
+const moods = ["😊", "😄", "🤔", "😌", "🧐", "😴"];
+const moodEmoji = computed(() => moods[moodIndex.value]);
+
+const positionStyle = computed(() => {
+  const style: Record<string, string> = {
+    left: position.value + "px",
+  };
+  if (topPosition.value !== null) {
+    style.top = topPosition.value + "px";
+    style.bottom = "auto";
+  }
+  return style;
+});
+
+let animationFrame: number | null = null;
+let stateTimeout: number | null = null;
+let moodInterval: number | null = null;
+let physicsFrame: number | null = null;
+
+const speed = 0.5;
+const tiktokWidth = 60;
+
+let velocityX = 0;
+let velocityY = 0;
+const gravity = 0.6;
+const bounce = 0.65;
+const friction = 0.98;
+const groundY = 15;
+
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
+const currentState = ref("idle");
+
+function getRandomTime(min: number, max: number): number {
+  return min + Math.random() * (max - min);
+}
+
+function pickNextState(): string {
+  const weights = { idle: 2, thinking: 3, walking: 5 };
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
+  let random = Math.random() * total;
+
+  for (const [state, weight] of Object.entries(weights)) {
+    random -= weight;
+    if (random <= 0) return state;
+  }
+  return "walking";
+}
+
+function setState(state: string) {
+  currentState.value = state;
+
+  switch (state) {
+    case "walking":
+      isWalking.value = true;
+      isThinking.value = false;
+      break;
+    case "thinking":
+      isWalking.value = false;
+      isThinking.value = true;
+      break;
+    case "idle":
+    default:
+      isWalking.value = false;
+      isThinking.value = false;
+      break;
+  }
+
+  scheduleNextState();
+}
+
+function scheduleNextState() {
+  if (stateTimeout) clearTimeout(stateTimeout);
+  if (isDragging.value) return;
+
+  const nextState = pickNextState();
+  let duration: number;
+
+  switch (nextState) {
+    case "walking":
+      duration = getRandomTime(4000, 7000);
+      break;
+    case "thinking":
+      duration = getRandomTime(2000, 4000);
+      break;
+    case "idle":
+    default:
+      duration = getRandomTime(1500, 3000);
+      break;
+  }
+
+  stateTimeout = window.setTimeout(() => {
+    if (!isDragging.value) {
+      setState(nextState);
+    }
+  }, duration);
+}
+
+function gameLoop() {
+  if (isDragging.value) return;
+
+  const screenWidth = window.innerWidth;
+
+  if (isWalking.value && topPosition.value === null) {
+    if (position.value < screenWidth - tiktokWidth - 20) {
+      position.value += speed;
+    } else {
+      position.value = -tiktokWidth;
+    }
+  }
+
+  animationFrame = requestAnimationFrame(gameLoop);
+}
+
+function startDrag(e: MouseEvent) {
+  e.preventDefault();
+
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+  }
+  if (stateTimeout) clearTimeout(stateTimeout);
+  if (physicsFrame) cancelAnimationFrame(physicsFrame);
+
+  isDragging.value = true;
+  isDragged.value = false;
+  isLanded.value = false;
+  isWalking.value = false;
+  topPosition.value =
+    topPosition.value ??
+    window.innerHeight - groundY - tiktokWidth;
+
+  dragOffsetX = e.clientX - position.value;
+  dragOffsetY = e.clientY - topPosition.value;
+
+  velocityX = 0;
+  velocityY = 0;
+
+  document.addEventListener("mousemove", onDrag);
+  document.addEventListener("mouseup", endDrag);
+}
+
+function onDrag(e: MouseEvent) {
+  if (!isDragging.value) return;
+
+  isDragged.value = true;
+  position.value = e.clientX - dragOffsetX;
+  topPosition.value = e.clientY - dragOffsetY;
+}
+
+function handleClick() {
+  if (!isDragged.value) {
+    emit("click");
+  }
+}
+
+function endDrag(e: MouseEvent) {
+  if (!isDragging.value) return;
+
+  isDragging.value = false;
+
+  velocityX = (e.clientX - dragOffsetX - position.value) * 0.3;
+  velocityY = -8;
+
+  document.removeEventListener("mousemove", onDrag);
+  document.removeEventListener("mouseup", endDrag);
+
+  startPhysics();
+}
+
+function startPhysics() {
+  if (physicsFrame) cancelAnimationFrame(physicsFrame);
+
+  const screenHeight = window.innerHeight;
+
+  function physicsLoop() {
+    if (isDragging.value) return;
+
+    velocityY += gravity;
+    velocityX *= friction;
+
+    position.value += velocityX;
+    topPosition.value! += velocityY;
+
+    const maxX = window.innerWidth - tiktokWidth - 20;
+    if (position.value > maxX) {
+      position.value = maxX;
+      velocityX *= -bounce;
+    }
+    if (position.value < 20) {
+      position.value = 20;
+      velocityX *= -bounce;
+    }
+
+    if (topPosition.value! > screenHeight - groundY - tiktokWidth) {
+      topPosition.value = screenHeight - groundY - tiktokWidth;
+      velocityY *= -bounce;
+      velocityX *= 0.9;
+
+      if (Math.abs(velocityY) < 2) {
+        velocityY = 0;
+        isLanded.value = true;
+
+        setTimeout(() => {
+          if (!isDragging.value) {
+            topPosition.value = null;
+            isLanded.value = false;
+            resumeNormalBehavior();
+          }
+        }, 2000);
+
+        return;
+      }
+    }
+
+    physicsFrame = requestAnimationFrame(physicsLoop);
+  }
+
+  physicsFrame = requestAnimationFrame(physicsLoop);
+}
+
+function resumeNormalBehavior() {
+  setState("walking");
+  if (!animationFrame) {
+    animationFrame = requestAnimationFrame(gameLoop);
+  }
+}
+
+function updateMood() {
+  moodIndex.value = (moodIndex.value + 1) % moods.length;
+}
+
+onMounted(() => {
+  setState("walking");
+  animationFrame = requestAnimationFrame(gameLoop);
+  moodInterval = window.setInterval(updateMood, 3000);
+});
+
+onUnmounted(() => {
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  if (stateTimeout) clearTimeout(stateTimeout);
+  if (moodInterval) clearInterval(moodInterval);
+  if (physicsFrame) cancelAnimationFrame(physicsFrame);
+
+  document.removeEventListener("mousemove", onDrag);
+  document.removeEventListener("mouseup", endDrag);
+});
+</script>
+
+<style scoped>
+.walking-tiktok {
+  position: fixed;
+  bottom: 15px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.1s ease;
+}
+
+.walking-tiktok.dragging {
+  cursor: grabbing;
+  z-index: 10001;
+}
+
+.tiktok-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tiktok-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #fe2c55 0%, #25f4ee 100%);
+  border-radius: 50%;
+  box-shadow:
+    0 3px 12px rgba(254, 44, 85, 0.35),
+    0 0 25px rgba(37, 244, 238, 0.15),
+    inset 0 2px 3px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.walking-tiktok.walking .tiktok-head {
+  animation: bodyBounce 0.3s ease-in-out infinite;
+}
+
+.walking-tiktok.thinking .tiktok-head {
+  animation: thinkWobble 0.8s ease-in-out infinite;
+}
+
+.walking-tiktok.idle .tiktok-head {
+  animation: idleSway 2s ease-in-out infinite;
+}
+
+.walking-tiktok.dragging .tiktok-head {
+  animation: none;
+  transform: scale(1.15);
+  box-shadow:
+    0 8px 25px rgba(254, 44, 85, 0.5),
+    0 0 40px rgba(37, 244, 238, 0.3);
+}
+
+.walking-tiktok.landed .tiktok-head {
+  animation: landSquish 0.3s ease-out;
+}
+
+@keyframes bodyBounce {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-3px) scaleY(0.97); }
+}
+
+@keyframes thinkWobble {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  25% { transform: rotate(4deg) translateY(-2px); }
+  50% { transform: rotate(-4deg) translateY(0); }
+  75% { transform: rotate(2deg) translateY(-1px); }
+}
+
+@keyframes idleSway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes landSquish {
+  0% { transform: scaleY(0.7) scaleX(1.3); }
+  50% { transform: scaleY(1.2) scaleX(0.9); }
+  100% { transform: scaleY(1) scaleX(1); }
+}
+
+.tiktok-icon {
+  width: 18px;
+  height: 18px;
+  color: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.tiktok-eyes {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 8px;
+  margin-top: -2px;
+}
+
+.eye {
+  width: 4px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+  animation: blink 3s ease-in-out infinite;
+}
+
+.eye-left { animation-delay: 0.1s; }
+
+.walking-tiktok.walking .eye,
+.walking-tiktok.dragging .eye {
+  animation: none;
+}
+
+.walking-tiktok.thinking .eye {
+  animation: thinkBlink 0.6s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 45%, 55%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.1); }
+}
+
+@keyframes thinkBlink {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+}
+
+.eye-brow {
+  position: absolute;
+  top: 8px;
+  width: 5px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1px;
+  transition: transform 0.3s ease;
+}
+
+.eye-brow.left-brow {
+  left: 6px;
+  transform: rotate(-15deg);
+}
+
+.eye-brow.right-brow {
+  right: 6px;
+  transform: rotate(15deg);
+}
+
+.eye-brow.raised {
+  transform: translateY(-2px) rotate(-20deg);
+}
+
+.eye-brow.right-brow.raised {
+  transform: translateY(-2px) rotate(20deg);
+}
+
+.tiktok-legs {
+  display: flex;
+  gap: 5px;
+  margin-top: -2px;
+}
+
+.leg {
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(to bottom, #fe2c55, #25f4ee);
+  border-radius: 0 0 2px 2px;
+  transform-origin: top center;
+}
+
+.leg-left { margin-left: 5px; }
+.leg-right { margin-right: 5px; }
+
+.leg.stepping.leg-left {
+  animation: legStepLeft 0.25s ease-in-out infinite;
+}
+
+.leg.stepping.leg-right {
+  animation: legStepRight 0.25s ease-in-out infinite;
+}
+
+@keyframes legStepLeft {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes legStepRight {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+.tiktok-shadow {
+  width: 24px;
+  height: 5px;
+  margin-top: 3px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.tiktok-shadow.walking {
+  animation: shadowPulse 0.3s ease-in-out infinite;
+}
+
+.tiktok-shadow.dragging {
+  opacity: 0.8;
+  transform: scale(1.5);
+}
+
+@keyframes shadowPulse {
+  0%, 100% { transform: scaleX(1); opacity: 0.5; }
+  50% { transform: scaleX(0.85); opacity: 0.35; }
+}
+
+.thinking-bubble {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.thinking-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: white;
+}
+
+.thought-content {
+  display: flex;
+  gap: 4px;
+}
+
+.thought-dot {
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, #fe2c55, #25f4ee);
+  border-radius: 50%;
+  animation: thoughtPop 0.7s ease-in-out infinite;
+}
+
+.thought-dot:nth-child(2) { animation-delay: 0.15s; }
+.thought-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes thoughtPop {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(-5px) scale(1.2); opacity: 1; }
+}
+
+.mood-indicator {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  animation: moodPop 0.5s ease-out;
+}
+
+.mood-emoji {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes moodPop {
+  0% { transform: translateX(-50%) scale(0); opacity: 0; }
+  50% { transform: translateX(-50%) scale(1.2); }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.click-hint {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 11px;
+  border-radius: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.walking-tiktok:hover .click-hint {
+  opacity: 1;
+}
+
+.walking-tiktok:hover .tiktok-head {
+  animation: none;
+  transform: scale(1.1);
+}
+</style>
