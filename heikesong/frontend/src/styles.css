@@ -2,6 +2,7 @@
   color-scheme: light;
   /* 全局复古底图可见度（0–1，数值越大底图越明显） */
   --bg-vintage-opacity: 0.3;
+  --hub-vintage-overlay: 0.375;
   font-family: "Georgia", "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
   line-height: 1.5;
   font-weight: 400;
@@ -336,6 +337,7 @@ h2 {
   width: 54px;
   height: 54px;
   border: 2px solid rgba(152, 108, 57, 0.7);
+  pointer-events: none;
 }
 
 .frame-corner.tl {
@@ -734,4 +736,15 @@ h2 {
   .hub-status {
     grid-template-columns: 1fr;
   }
+}
+
+/* 系统设置：关闭首页 CRT 扫描线 */
+html.settings-no-scanlines .home-page::before,
+html.settings-no-scanlines .soul-talk-page::before,
+html.settings-no-scanlines .landing-page::before {
+  opacity: 0 !important;
+}
+
+html.settings-no-ambience .landing-page .particle-layer {
+  display: none;
 }

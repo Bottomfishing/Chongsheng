@@ -65,8 +65,8 @@ defineEmits<{
   min-width: 0;
   padding: 0.65rem 0.85rem 0.65rem 0.6rem;
   text-align: left;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(201, 169, 110, 0.3);
+  background: rgba(255, 252, 247, 0.55);
+  border: 1px solid rgba(201, 169, 110, 0.32);
   border-radius: 12px;
   cursor: pointer;
   transition:
@@ -77,14 +77,21 @@ defineEmits<{
 }
 
 .roster-card:hover {
+  background: rgba(255, 252, 247, 0.88);
   border-color: rgba(201, 169, 110, 0.55);
+  box-shadow: 0 6px 20px rgba(61, 41, 20, 0.08);
   transform: translateY(-2px);
 }
 
 .roster-card.active {
-  background: rgba(255, 255, 255, 0.95);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 252, 247, 0.95) 0%,
+    rgba(248, 238, 220, 0.9) 100%
+  );
   border-color: var(--accent, #c9a96e);
   box-shadow:
+    0 0 16px rgba(201, 169, 110, 0.15),
     0 8px 24px rgba(61, 41, 20, 0.1),
     inset 0 -3px 0 var(--accent, #c9a96e);
 }
@@ -108,9 +115,14 @@ defineEmits<{
 
 .roster-name {
   color: #3d2914;
+  font-family: "LXGW WenKai", "KaiTi", "楷体", serif;
   font-size: 0.95rem;
   letter-spacing: 0.1em;
   white-space: nowrap;
+}
+
+.roster-card.active .roster-name {
+  color: #2a1f12;
 }
 
 .roster-role {

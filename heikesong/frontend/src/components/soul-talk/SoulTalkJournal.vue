@@ -29,9 +29,9 @@
     <footer class="journal-hints">
       <p class="hints-title">小提示</p>
       <ul>
-        <li>点击左侧人物，播放 TA 的动画</li>
-        <li><kbd>←</kbd> <kbd>→</kbd> 切换倾诉对象</li>
-        <li><kbd>Enter</kbd> 发送 · 双击舞台重播动画</li>
+        <li>滚轮切换左上角四位伙伴</li>
+        <li>单击舞台人物，播放互动视频</li>
+        <li><kbd>←</kbd> <kbd>→</kbd> 快捷切换 · <kbd>Enter</kbd> 发送</li>
       </ul>
     </footer>
   </aside>
@@ -69,15 +69,20 @@ watch(
 .journal-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.75rem;
   height: 100%;
   min-height: 0;
 }
 
 .panel-head {
   flex-shrink: 0;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(201, 169, 110, 0.28);
+  padding: 0.75rem 0.9rem;
+  background: linear-gradient(180deg, #faf6ee 0%, #f3ebe0 100%);
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 8px rgba(61, 41, 20, 0.06);
 }
 
 .panel-kicker {
@@ -90,7 +95,8 @@ watch(
 
 .panel-title {
   margin: 0;
-  color: #3d2914;
+  color: #2a1f12;
+  font-family: "LXGW WenKai", "KaiTi", "楷体", serif;
   font-size: 1.05rem;
   font-weight: 400;
   letter-spacing: 0.2em;
@@ -98,7 +104,7 @@ watch(
 
 .panel-sub {
   margin: 0.35rem 0 0;
-  color: #8b7355;
+  color: #7a6348;
   font-size: 0.75rem;
 }
 
@@ -106,28 +112,41 @@ watch(
   flex: 1;
   min-height: 120px;
   max-height: min(42vh, 420px);
-  padding: 0.35rem 0.15rem;
+  padding: 0.65rem 0.7rem;
   overflow-y: auto;
+  background: #fffcf7;
+  border: 1px solid rgba(201, 169, 110, 0.32);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 2px 8px rgba(61, 41, 20, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   scrollbar-width: thin;
-  scrollbar-color: rgba(201, 169, 110, 0.45) transparent;
+  scrollbar-color: rgba(201, 169, 110, 0.5) #f5efe6;
 }
 
 .journal-scroll::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
+}
+
+.journal-scroll::-webkit-scrollbar-track {
+  background: #f5efe6;
+  border-radius: 4px;
 }
 
 .journal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(201, 169, 110, 0.45);
+  background: rgba(201, 169, 110, 0.5);
   border-radius: 4px;
 }
 
 .journal-empty {
   margin: 0;
-  padding: 1rem 0.5rem;
-  color: #a08060;
+  padding: 1.25rem 0.75rem;
+  color: #8b7355;
   font-size: 0.82rem;
   line-height: 1.65;
   text-align: center;
+  background: #faf6ee;
+  border-radius: 8px;
 }
 
 .journal-list {
@@ -140,20 +159,26 @@ watch(
 }
 
 .journal-item {
-  padding: 0.55rem 0.65rem;
+  padding: 0.6rem 0.7rem;
   border-radius: 10px;
-  border: 1px solid rgba(201, 169, 110, 0.22);
-  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  background: #faf6ee;
+  box-shadow: 0 2px 6px rgba(61, 41, 20, 0.05);
+}
+
+.journal-item.assistant {
+  border-left: 3px solid rgba(201, 169, 110, 0.65);
 }
 
 .journal-item.user {
-  background: rgba(92, 64, 51, 0.08);
-  border-color: rgba(92, 64, 51, 0.15);
+  background: #f3ebe0;
+  border-color: rgba(92, 64, 51, 0.22);
+  border-left: 3px solid rgba(92, 64, 51, 0.45);
 }
 
 .journal-label {
   display: block;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
   color: #8b7355;
   font-size: 0.62rem;
   letter-spacing: 0.18em;
@@ -163,12 +188,12 @@ watch(
   margin: 0;
   color: #3d2914;
   font-size: 0.8rem;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .journal-time {
   display: block;
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
   color: #a08060;
   font-size: 0.62rem;
   font-family: monospace;
@@ -176,15 +201,18 @@ watch(
 
 .journal-hints {
   flex-shrink: 0;
-  padding: 0.75rem 0.85rem;
-  background: rgba(255, 252, 247, 0.85);
-  border: 1px dashed rgba(201, 169, 110, 0.4);
-  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  background: linear-gradient(180deg, #f8f2e8 0%, #f0e6d6 100%);
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 2px 8px rgba(61, 41, 20, 0.06);
 }
 
 .hints-title {
   margin: 0 0 0.4rem;
-  color: #8b7355;
+  color: #8b6914;
   font-size: 0.68rem;
   letter-spacing: 0.2em;
 }
@@ -192,17 +220,19 @@ watch(
 .journal-hints ul {
   margin: 0;
   padding: 0 0 0 1rem;
-  color: #6b5a48;
+  color: #5c4a38;
   font-size: 0.72rem;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .journal-hints kbd {
-  padding: 0.05rem 0.3rem;
+  padding: 0.08rem 0.35rem;
   font-family: inherit;
   font-size: 0.68rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(201, 169, 110, 0.35);
+  color: #4a3828;
+  background: #fffcf7;
+  border: 1px solid rgba(201, 169, 110, 0.4);
   border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(201, 169, 110, 0.2);
 }
 </style>

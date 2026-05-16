@@ -31,11 +31,13 @@
     <!-- 居中人物 -->
     <div
       class="character-stage"
+      title="单击人物播放互动视频"
       @mousemove="handleSpotlightMove"
       @mouseleave="handleSpotlightLeave"
-      @dblclick="handleStageDblClick"
+      @click="handleStageClick"
     >
       <button
+        v-if="showCharacterNav"
         class="stage-arrow arrow-left"
         type="button"
         aria-label="上一个人物"
@@ -61,6 +63,7 @@
       </Transition>
 
       <button
+        v-if="showCharacterNav"
         class="stage-arrow arrow-right"
         type="button"
         aria-label="下一个人物"
@@ -102,21 +105,26 @@ import CharacterPortrait from "@/components/soul-talk/CharacterPortrait.vue";
 import { useTypewriter } from "@/composables/useTypewriter";
 import type { ChatMessage } from "@/types/soulTalk";
 
-const props = defineProps<{
-  characterId: string;
-  characterName: string;
-  characterSymbol: string;
-  characterRole: string;
-  characterPortrait: string;
-  characterAnimation?: string;
-  accent: string;
-  accentSoft: string;
-  messages: ChatMessage[];
-  isTyping: boolean;
-  sending: boolean;
-  disabled?: boolean;
-  placeholder?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    characterId: string;
+    characterName: string;
+    characterSymbol: string;
+    characterRole: string;
+    characterPortrait: string;
+    characterAnimation?: string;
+    accent: string;
+    accentSoft: string;
+    messages: ChatMessage[];
+    isTyping: boolean;
+    sending: boolean;
+    disabled?: boolean;
+    placeholder?: string;
+    /** 为 false 时隐藏左右切换（由外侧滚轮负责） */
+    showCharacterNav?: boolean;
+  }>(),
+  { showCharacterNav: true },
+);
 
 const emit = defineEmits<{
   send: [text: string];
@@ -178,7 +186,11 @@ const showTypewriter = computed(
   () => enableTypewriter.value && currentLine.value?.role === "assistant",
 );
 
-function handleStageDblClick() {
+function handleStageClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  if (target.closest(".stage-arrow, .feet-composer, .bubble-slot")) {
+    return;
+  }
   playCharacterVideo();
 }
 
@@ -227,9 +239,9 @@ function handleSpotlightLeave(e: MouseEvent) {
   grid-template-rows: auto 1fr auto;
   align-items: stretch;
   width: 100%;
-  min-height: min(78vh, 760px);
-  max-width: min(100%, 520px);
-  margin: 0 auto;
+  min-height: min(70vh, 720px);
+  max-width: 100%;
+  margin: 0;
   gap: 0;
 }
 
@@ -239,9 +251,12 @@ function handleSpotlightLeave(e: MouseEvent) {
   justify-content: center;
   align-items: flex-end;
   width: 100%;
-  min-height: 88px;
-  padding: 0 0.5rem 0.35rem;
-  z-index: 20;
+  min-height: 72px;
+  max-height: 28%;
+  padding: 0 0.75rem 0.35rem;
+  z-index: 2;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .speech-bubble {
@@ -266,7 +281,10 @@ function handleSpotlightLeave(e: MouseEvent) {
 .speech-bubble.assistant {
   color: #3d2914;
   background: rgba(255, 252, 247, 0.97);
-  border: 1px solid rgba(201, 169, 110, 0.5);
+  border: 1px solid rgba(201, 169, 110, 0.55);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.25),
+    0 0 20px rgba(201, 169, 110, 0.12);
 }
 
 .speech-bubble.assistant::after {
@@ -355,6 +373,31 @@ function handleSpotlightLeave(e: MouseEvent) {
   width: 100%;
   min-height: 0;
   align-self: stretch;
+  cursor: pointer;
+}
+
+.character-stage::after {
+  content: "单击人物 · 播放互动";
+  position: absolute;
+  bottom: 0.35rem;
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.55rem;
+  color: rgba(232, 213, 163, 0.85);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  pointer-events: none;
+  background: rgba(10, 8, 4, 0.55);
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.character-stage:hover::after {
+  opacity: 1;
 }
 
 .stage-arrow {
@@ -366,14 +409,17 @@ function handleSpotlightLeave(e: MouseEvent) {
   justify-content: center;
   width: 48px;
   height: 48px;
-  color: #8b7355;
+  color: #e8d5a3;
   font-size: 1.8rem;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(201, 169, 110, 0.45);
+  background: rgba(10, 8, 4, 0.75);
+  border: 1px solid rgba(201, 169, 110, 0.5);
   border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(61, 41, 20, 0.12);
+  box-shadow:
+    0 0 12px rgba(201, 169, 110, 0.2),
+    0 4px 14px rgba(0, 0, 0, 0.35);
   cursor: pointer;
+  text-shadow: 0 0 8px rgba(201, 169, 110, 0.4);
   transform: translateY(-50%);
   transition:
     color 0.2s ease,
@@ -384,10 +430,12 @@ function handleSpotlightLeave(e: MouseEvent) {
 }
 
 .stage-arrow:hover {
-  color: #3d2914;
-  background: rgba(255, 255, 255, 0.98);
-  border-color: #c9a96e;
-  box-shadow: 0 6px 20px rgba(201, 169, 110, 0.25);
+  color: #fff8e7;
+  background: rgba(201, 169, 110, 0.18);
+  border-color: #e8d5a3;
+  box-shadow:
+    0 0 20px rgba(201, 169, 110, 0.35),
+    0 6px 20px rgba(0, 0, 0, 0.3);
   transform: translateY(-50%) scale(1.12);
 }
 
@@ -417,8 +465,10 @@ function handleSpotlightLeave(e: MouseEvent) {
   align-items: center;
   justify-content: flex-end;
   width: 100%;
+  max-width: min(100%, 420px);
   min-height: 0;
-  padding-bottom: 0.25rem;
+  padding: 0 0.5rem 0.5rem;
+  box-sizing: border-box;
 }
 
 .character-spotlight {
@@ -465,14 +515,15 @@ function handleSpotlightLeave(e: MouseEvent) {
   padding: 0.42rem;
   background: linear-gradient(
     165deg,
-    rgba(255, 252, 247, 0.98) 0%,
-    rgba(248, 242, 232, 0.96) 100%
+    rgba(255, 252, 247, 0.96) 0%,
+    rgba(248, 238, 220, 0.94) 100%
   );
-  border: 1px solid rgba(201, 169, 110, 0.42);
+  border: 1px solid rgba(201, 169, 110, 0.5);
   border-radius: 18px;
   box-shadow:
-    0 10px 28px rgba(61, 41, 20, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 0 18px rgba(201, 169, 110, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .composer-box::before,

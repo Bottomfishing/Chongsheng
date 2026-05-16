@@ -18,6 +18,12 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: "在加载页面砸碎那台老电视",
     icon: "📺",
   },
+  {
+    id: "read_manual",
+    name: "熟读守则",
+    description: "在首页翻阅《重生者手册》",
+    icon: "📖",
+  },
 ];
 
 const STORAGE_KEY = "chongsheng_achievements";

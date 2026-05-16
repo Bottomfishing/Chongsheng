@@ -1,15 +1,17 @@
 <template>
-  <div
-    class="walking-tiktok"
-    :class="[currentState, { dragging: isDragging, landed: isLanded }]"
-    :style="positionStyle"
-    @mousedown="startDrag"
-    @click.stop="handleClick"
-  >
+  <Teleport to="body">
+    <div
+      class="walking-tiktok"
+      :class="[currentState, { dragging: isDragging, landed: isLanded }]"
+      :style="positionStyle"
+      @mousedown="startDrag"
+    >
     <div class="tiktok-body">
       <div class="tiktok-head">
         <svg class="tiktok-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+          <path
+            d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"
+          />
         </svg>
         <div class="tiktok-eyes">
           <span class="eye eye-left"></span>
@@ -23,21 +25,44 @@
           <span class="thought-dot" v-for="n in 3" :key="n"></span>
         </div>
       </div>
-      <div class="mood-indicator" v-if="!isThinking && !isWalking && !isDragging">
+      <div
+        class="mood-indicator"
+        v-if="!isThinking && !isWalking && !isDragging"
+      >
         <span class="mood-emoji">{{ moodEmoji }}</span>
       </div>
     </div>
     <div class="tiktok-legs">
-      <div class="leg leg-left" :class="{ stepping: isWalking && !isDragging }"></div>
-      <div class="leg leg-right" :class="{ stepping: isWalking && !isDragging }"></div>
+      <div
+        class="leg leg-left"
+        :class="{ stepping: isWalking && !isDragging }"
+      ></div>
+      <div
+        class="leg leg-right"
+        :class="{ stepping: isWalking && !isDragging }"
+      ></div>
     </div>
-    <div class="tiktok-shadow" :class="{ walking: isWalking && !isDragging, dragging: isDragging }"></div>
+    <div
+      class="tiktok-shadow"
+      :class="{ walking: isWalking && !isDragging, dragging: isDragging }"
+    ></div>
     <div class="click-hint" v-if="!isDragging">拖拽/点击</div>
-  </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
+
+const props = withDefaults(
+  defineProps<{
+    /** 距视口底部的行走高度，应对齐首页 footer-menu 高度 */
+    groundOffset?: number;
+  }>(),
+  {
+    groundOffset: 52,
+  },
+);
 
 const emit = defineEmits<{
   (e: "click"): void;
@@ -62,6 +87,8 @@ const positionStyle = computed(() => {
   if (topPosition.value !== null) {
     style.top = topPosition.value + "px";
     style.bottom = "auto";
+  } else {
+    style.bottom = `${props.groundOffset}px`;
   }
   return style;
 });
@@ -79,10 +106,16 @@ let velocityY = 0;
 const gravity = 0.6;
 const bounce = 0.65;
 const friction = 0.98;
-const groundY = 15;
+const DRAG_THRESHOLD = 8;
+
+function getWalkBottom(): number {
+  return props.groundOffset;
+}
 
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+let pointerStartX = 0;
+let pointerStartY = 0;
 
 const currentState = ref("idle");
 
@@ -170,6 +203,10 @@ function gameLoop() {
 function startDrag(e: MouseEvent) {
   e.preventDefault();
 
+  pointerStartX = e.clientX;
+  pointerStartY = e.clientY;
+  isDragged.value = false;
+
   if (animationFrame) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;
@@ -178,15 +215,13 @@ function startDrag(e: MouseEvent) {
   if (physicsFrame) cancelAnimationFrame(physicsFrame);
 
   isDragging.value = true;
-  isDragged.value = false;
   isLanded.value = false;
   isWalking.value = false;
-  topPosition.value =
-    topPosition.value ??
-    window.innerHeight - groundY - tiktokWidth;
 
   dragOffsetX = e.clientX - position.value;
-  dragOffsetY = e.clientY - topPosition.value;
+  const currentTop =
+    topPosition.value ?? window.innerHeight - getWalkBottom() - tiktokWidth;
+  dragOffsetY = e.clientY - currentTop;
 
   velocityX = 0;
   velocityY = 0;
@@ -198,28 +233,43 @@ function startDrag(e: MouseEvent) {
 function onDrag(e: MouseEvent) {
   if (!isDragging.value) return;
 
-  isDragged.value = true;
+  const moved = Math.hypot(
+    e.clientX - pointerStartX,
+    e.clientY - pointerStartY,
+  );
+  if (moved < DRAG_THRESHOLD) {
+    return;
+  }
+
+  if (!isDragged.value) {
+    isDragged.value = true;
+    topPosition.value =
+      topPosition.value ?? window.innerHeight - getWalkBottom() - tiktokWidth;
+  }
+
   position.value = e.clientX - dragOffsetX;
   topPosition.value = e.clientY - dragOffsetY;
-}
-
-function handleClick() {
-  if (!isDragged.value) {
-    emit("click");
-  }
 }
 
 function endDrag(e: MouseEvent) {
   if (!isDragging.value) return;
 
+  const wasDrag = isDragged.value;
   isDragging.value = false;
-
-  velocityX = (e.clientX - dragOffsetX - position.value) * 0.3;
-  velocityY = -8;
 
   document.removeEventListener("mousemove", onDrag);
   document.removeEventListener("mouseup", endDrag);
 
+  if (!wasDrag) {
+    emit("click");
+    topPosition.value = null;
+    isDragged.value = false;
+    resumeNormalBehavior();
+    return;
+  }
+
+  velocityX = (e.clientX - dragOffsetX - position.value) * 0.3;
+  velocityY = -8;
   startPhysics();
 }
 
@@ -247,8 +297,9 @@ function startPhysics() {
       velocityX *= -bounce;
     }
 
-    if (topPosition.value! > screenHeight - groundY - tiktokWidth) {
-      topPosition.value = screenHeight - groundY - tiktokWidth;
+    const floorY = screenHeight - getWalkBottom() - tiktokWidth;
+    if (topPosition.value! > floorY) {
+      topPosition.value = floorY;
       velocityY *= -bounce;
       velocityX *= 0.9;
 
@@ -305,19 +356,21 @@ onUnmounted(() => {
 <style scoped>
 .walking-tiktok {
   position: fixed;
-  bottom: 15px;
-  z-index: 9999;
+  bottom: 52px;
+  z-index: 10250;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: grab;
   user-select: none;
+  pointer-events: auto;
+  touch-action: none;
   transition: transform 0.1s ease;
 }
 
 .walking-tiktok.dragging {
   cursor: grabbing;
-  z-index: 10001;
+  z-index: 10260;
 }
 
 .tiktok-body {
@@ -368,26 +421,51 @@ onUnmounted(() => {
 }
 
 @keyframes bodyBounce {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(-3px) scaleY(0.97); }
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-3px) scaleY(0.97);
+  }
 }
 
 @keyframes thinkWobble {
-  0%, 100% { transform: rotate(-4deg) translateY(0); }
-  25% { transform: rotate(4deg) translateY(-2px); }
-  50% { transform: rotate(-4deg) translateY(0); }
-  75% { transform: rotate(2deg) translateY(-1px); }
+  0%,
+  100% {
+    transform: rotate(-4deg) translateY(0);
+  }
+  25% {
+    transform: rotate(4deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(-4deg) translateY(0);
+  }
+  75% {
+    transform: rotate(2deg) translateY(-1px);
+  }
 }
 
 @keyframes idleSway {
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
 }
 
 @keyframes landSquish {
-  0% { transform: scaleY(0.7) scaleX(1.3); }
-  50% { transform: scaleY(1.2) scaleX(0.9); }
-  100% { transform: scaleY(1) scaleX(1); }
+  0% {
+    transform: scaleY(0.7) scaleX(1.3);
+  }
+  50% {
+    transform: scaleY(1.2) scaleX(0.9);
+  }
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
 }
 
 .tiktok-icon {
@@ -415,7 +493,9 @@ onUnmounted(() => {
   animation: blink 3s ease-in-out infinite;
 }
 
-.eye-left { animation-delay: 0.1s; }
+.eye-left {
+  animation-delay: 0.1s;
+}
 
 .walking-tiktok.walking .eye,
 .walking-tiktok.dragging .eye {
@@ -427,13 +507,25 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-  0%, 45%, 55%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.1); }
+  0%,
+  45%,
+  55%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.1);
+  }
 }
 
 @keyframes thinkBlink {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.3); }
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.3);
+  }
 }
 
 .eye-brow {
@@ -478,8 +570,12 @@ onUnmounted(() => {
   transform-origin: top center;
 }
 
-.leg-left { margin-left: 5px; }
-.leg-right { margin-right: 5px; }
+.leg-left {
+  margin-left: 5px;
+}
+.leg-right {
+  margin-right: 5px;
+}
 
 .leg.stepping.leg-left {
   animation: legStepLeft 0.25s ease-in-out infinite;
@@ -490,13 +586,23 @@ onUnmounted(() => {
 }
 
 @keyframes legStepLeft {
-  0%, 100% { transform: rotate(-15deg); }
-  50% { transform: rotate(15deg); }
+  0%,
+  100% {
+    transform: rotate(-15deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
 }
 
 @keyframes legStepRight {
-  0%, 100% { transform: rotate(15deg); }
-  50% { transform: rotate(-15deg); }
+  0%,
+  100% {
+    transform: rotate(15deg);
+  }
+  50% {
+    transform: rotate(-15deg);
+  }
 }
 
 .tiktok-shadow {
@@ -518,8 +624,15 @@ onUnmounted(() => {
 }
 
 @keyframes shadowPulse {
-  0%, 100% { transform: scaleX(1); opacity: 0.5; }
-  50% { transform: scaleX(0.85); opacity: 0.35; }
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(0.85);
+    opacity: 0.35;
+  }
 }
 
 .thinking-bubble {
@@ -556,12 +669,23 @@ onUnmounted(() => {
   animation: thoughtPop 0.7s ease-in-out infinite;
 }
 
-.thought-dot:nth-child(2) { animation-delay: 0.15s; }
-.thought-dot:nth-child(3) { animation-delay: 0.3s; }
+.thought-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.thought-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes thoughtPop {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
-  50% { transform: translateY(-5px) scale(1.2); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-5px) scale(1.2);
+    opacity: 1;
+  }
 }
 
 .mood-indicator {
@@ -578,9 +702,17 @@ onUnmounted(() => {
 }
 
 @keyframes moodPop {
-  0% { transform: translateX(-50%) scale(0); opacity: 0; }
-  50% { transform: translateX(-50%) scale(1.2); }
-  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  0% {
+    transform: translateX(-50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
 }
 
 .click-hint {

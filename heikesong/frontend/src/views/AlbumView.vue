@@ -1,90 +1,70 @@
 <template>
-  <div class="album-page">
-    <div class="paper-bg" />
-    <div class="grain-overlay" />
-
-    <!-- 顶部导航栏 -->
-    <header class="top-bar">
-      <button class="back-btn" type="button" @click="goBack">
-        <span class="back-icon">&#8249;</span>
-        <span>返回</span>
-      </button>
-      <div class="page-title">
-        <span class="title-icon">&#9670;</span>
-        <span>时光相册</span>
-      </div>
+  <HubSubPageLayout title="时光相册" kicker="1995 · Memory · Album">
+    <template #header-extra>
       <div class="album-count">
         <span class="count-num">{{ totalPhotos }}</span>
         <span class="count-label">张照片</span>
       </div>
-    </header>
+    </template>
 
-    <!-- 主内容区 -->
-    <main class="main-content">
-      <div class="album-container">
-        <!-- 分类标签 -->
-        <nav class="category-tabs">
-          <button
-            v-for="cat in categories"
-            :key="cat.id"
-            class="tab-btn"
-            :class="{ active: activeCategory === cat.id }"
-            type="button"
-            @click="activeCategory = cat.id"
-          >
-            <span class="tab-icon">{{ cat.icon }}</span>
-            <span class="tab-label">{{ cat.name }}</span>
-          </button>
-        </nav>
+    <nav class="category-tabs" role="tablist">
+      <button
+        v-for="cat in categories"
+        :key="cat.id"
+        class="tab-btn"
+        :class="{ active: activeCategory === cat.id }"
+        type="button"
+        role="tab"
+        :aria-selected="activeCategory === cat.id"
+        @click="activeCategory = cat.id"
+      >
+        <span class="tab-icon" v-html="cat.icon" />
+        <span class="tab-label">{{ cat.name }}</span>
+        <span class="tab-badge">{{ cat.photos.length }}</span>
+      </button>
+    </nav>
 
-        <!-- 时间线标题 -->
-        <div class="timeline-header">
-          <div class="timeline-line" />
-          <span class="timeline-label">{{ currentCategoryName }}</span>
-          <div class="timeline-line" />
-        </div>
+    <div class="section-head">
+      <span class="section-line" />
+      <span class="section-label">{{ currentCategoryName }}</span>
+      <span class="section-line" />
+    </div>
 
-        <!-- 照片网格 -->
-        <div class="photo-grid">
-          <div
-            v-for="(photo, idx) in currentPhotos"
-            :key="idx"
-            class="photo-item"
-            :class="{ large: photo.size === 'large' }"
-          >
-            <div class="photo-frame">
-              <div class="photo-placeholder">
-                <span class="photo-icon">&#127902;</span>
-                <span class="photo-hint">{{ photo.title }}</span>
-              </div>
-              <div class="photo-overlay">
-                <div class="photo-meta">
-                  <span class="photo-date">{{ photo.date }}</span>
-                  <span v-if="photo.tag" class="photo-tag">{{ photo.tag }}</span>
-                </div>
-              </div>
-            </div>
+    <div v-if="currentPhotos.length" class="photo-grid">
+      <article
+        v-for="(photo, idx) in currentPhotos"
+        :key="`${activeCategory}-${idx}`"
+        class="photo-item"
+        :class="{ large: photo.size === 'large' }"
+      >
+        <div class="photo-frame">
+          <div class="frame-corner-mark tl" />
+          <div class="frame-corner-mark br" />
+          <div class="photo-placeholder">
+            <span class="photo-icon">&#127902;</span>
+            <span class="photo-hint">{{ photo.title }}</span>
+          </div>
+          <div class="photo-overlay">
+            <span class="photo-date">{{ photo.date }}</span>
+            <span v-if="photo.tag" class="photo-tag">{{ photo.tag }}</span>
           </div>
         </div>
+      </article>
+    </div>
 
-        <!-- 空状态 -->
-        <div v-if="currentPhotos.length === 0" class="empty-state">
-          <div class="empty-icon">&#128247;</div>
-          <p class="empty-title">暂无照片</p>
-          <p class="empty-desc">
-            在剧情模式中做出选择，精彩瞬间将自动收录于此
-          </p>
-        </div>
-      </div>
-    </main>
-  </div>
+    <div v-else class="empty-state">
+      <span class="empty-icon">&#128247;</span>
+      <p class="empty-title">暂无照片</p>
+      <p class="empty-desc">
+        在剧情模式中做出选择，精彩瞬间将自动收录于此
+      </p>
+    </div>
+  </HubSubPageLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
+import HubSubPageLayout from "@/components/hub/HubSubPageLayout.vue";
 
 interface PhotoItem {
   title: string;
@@ -108,7 +88,7 @@ const categories = ref<Category[]>([
     photos: [
       { title: "重生之始", date: "1995.03.15", tag: "主线" },
       { title: "录像厅之夜", date: "1995.04.02", tag: "主线" },
-      { title: "街头直播", date: "1995.05.18", tag: "主线" },
+      { title: "街头直播", date: "1995.05.18", tag: "主线", size: "large" },
     ],
   },
   {
@@ -143,7 +123,7 @@ const categories = ref<Category[]>([
 const activeCategory = ref("story");
 
 const currentCategory = computed(() =>
-  categories.value.find((c) => c.id === activeCategory.value)
+  categories.value.find((c) => c.id === activeCategory.value),
 );
 
 const currentCategoryName = computed(() => currentCategory.value?.name ?? "");
@@ -151,238 +131,145 @@ const currentCategoryName = computed(() => currentCategory.value?.name ?? "");
 const currentPhotos = computed(() => currentCategory.value?.photos ?? []);
 
 const totalPhotos = computed(() =>
-  categories.value.reduce((sum, c) => sum + c.photos.length, 0)
+  categories.value.reduce((sum, c) => sum + c.photos.length, 0),
 );
-
-function goBack() {
-  router.push("/");
-}
 </script>
 
 <style scoped>
-.album-page {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  background: rgba(250, 248, 245, 0.92);
-  color: #3d2914;
-  overflow: hidden;
-}
-
-.paper-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(201, 169, 110, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(201, 169, 110, 0.04) 0%, transparent 40%),
-    linear-gradient(180deg, #fdfbf7 0%, #f5f0e8 100%);
-  pointer-events: none;
-}
-
-.grain-overlay {
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events: none;
-}
-
-/* ===== 顶部导航栏 ===== */
-.top-bar {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.5rem;
-  border-bottom: 1px solid rgba(201, 169, 110, 0.3);
-  background: rgba(253, 251, 247, 0.85);
-  backdrop-filter: blur(12px);
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.9rem;
-  color: #8b7355;
-  font-size: 0.85rem;
-  font-family: inherit;
-  letter-spacing: 1px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(201, 169, 110, 0.25);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.back-btn:hover {
-  color: #5c4126;
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(201, 169, 110, 0.5);
-  transform: translateX(-2px);
-}
-
-.back-icon {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.page-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #3d2914;
-  font-size: 1.1rem;
-  font-weight: 500;
-  font-family: "STXingkai", "Xingkai SC", "行楷", "STKaiti", "KaiTi", serif;
-  letter-spacing: 0.15em;
-}
-
-.title-icon {
-  color: #c9a96e;
-  font-size: 0.9rem;
-}
-
 .album-count {
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
-  color: #8b7355;
-  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  color: #e8d5a3;
+  font-size: 0.8rem;
+  background: rgba(201, 169, 110, 0.12);
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  border-radius: 999px;
 }
 
 .count-num {
-  color: #8b4513;
-  font-size: 1.1rem;
+  color: #fff8e7;
+  font-size: 1.05rem;
   font-weight: 600;
+  text-shadow: 0 0 8px rgba(201, 169, 110, 0.35);
 }
 
 .count-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  opacity: 0.85;
 }
 
-/* ===== 主内容区 ===== */
-.main-content {
-  position: relative;
-  z-index: 5;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1.5rem 1.25rem 2rem;
-}
-
-.main-content::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  background: transparent;
-}
-
-.main-content {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.album-container {
-  max-width: 720px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-/* ===== 分类标签 ===== */
 .category-tabs {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.25rem;
-  background: rgba(255, 252, 247, 0.8);
-  border: 1px solid rgba(201, 169, 110, 0.25);
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  padding: 0.35rem;
+  background: rgba(255, 252, 247, 0.7);
+  border: 1px solid rgba(201, 169, 110, 0.28);
   border-radius: 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.category-tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .tab-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.5rem 0.85rem;
-  color: #8b7355;
-  font-size: 0.85rem;
+  padding: 0.45rem 0.75rem;
+  color: #6b4e2e;
+  font-size: 0.82rem;
   font-family: inherit;
   letter-spacing: 0.08em;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .tab-btn:hover {
-  color: #5c4126;
-  background: rgba(201, 169, 110, 0.08);
+  color: #3d2914;
+  background: rgba(201, 169, 110, 0.1);
 }
 
 .tab-btn.active {
-  color: #3d2914;
-  background: rgba(201, 169, 110, 0.15);
-  border-color: rgba(201, 169, 110, 0.4);
-  font-weight: 500;
+  color: #2a1f12;
+  background: linear-gradient(
+    165deg,
+    rgba(201, 169, 110, 0.22) 0%,
+    rgba(201, 169, 110, 0.1) 100%
+  );
+  border-color: rgba(201, 169, 110, 0.5);
+  box-shadow: 0 0 12px rgba(201, 169, 110, 0.15);
 }
 
 .tab-icon {
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
-/* ===== 时间线标题 ===== */
-.timeline-header {
+.tab-badge {
+  min-width: 1.1rem;
+  padding: 0.05rem 0.35rem;
+  color: #5c4033;
+  font-size: 0.62rem;
+  font-family: monospace;
+  text-align: center;
+  background: rgba(255, 252, 247, 0.9);
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  border-radius: 999px;
+}
+
+.tab-btn.active .tab-badge {
+  color: #3d2914;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.section-head {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.25rem 0;
+  margin-bottom: 1rem;
 }
 
-.timeline-line {
+.section-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 169, 110, 0.4), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 169, 110, 0.45),
+    transparent
+  );
 }
 
-.timeline-label {
-  color: #8b7355;
-  font-size: 0.75rem;
-  font-family: "STKaiti", "KaiTi", "楷体", serif;
+.section-label {
+  flex-shrink: 0;
+  color: #5c4033;
+  font-family: "LXGW WenKai", "STKaiti", "KaiTi", serif;
+  font-size: 0.82rem;
   letter-spacing: 0.2em;
-  white-space: nowrap;
 }
 
-/* ===== 照片网格 ===== */
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .photo-item {
   aspect-ratio: 1;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .photo-item.large {
   grid-column: span 2;
   grid-row: span 2;
-  aspect-ratio: auto;
 }
 
 .photo-item:hover {
@@ -393,17 +280,46 @@ function goBack() {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #fffdf9 0%, #f5efe6 100%);
-  border: 1px solid rgba(201, 169, 110, 0.35);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(61, 41, 20, 0.05);
+  min-height: 120px;
+  background: linear-gradient(165deg, #fffdf9 0%, #f3ebe0 100%);
+  border: 1px solid rgba(201, 169, 110, 0.42);
+  border-radius: 10px;
+  box-shadow:
+    0 4px 16px rgba(61, 41, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   overflow: hidden;
-  transition: box-shadow 0.3s ease;
+  transition:
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .photo-item:hover .photo-frame {
-  box-shadow: 0 8px 24px rgba(61, 41, 20, 0.1);
-  border-color: rgba(201, 169, 110, 0.6);
+  border-color: rgba(201, 169, 110, 0.65);
+  box-shadow:
+    0 12px 28px rgba(61, 41, 20, 0.12),
+    0 0 20px rgba(201, 169, 110, 0.12);
+}
+
+.frame-corner-mark {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(201, 169, 110, 0.55);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.frame-corner-mark.tl {
+  top: 6px;
+  left: 6px;
+  border-width: 2px 0 0 2px;
+}
+
+.frame-corner-mark.br {
+  right: 6px;
+  bottom: 6px;
+  border-width: 0 2px 2px 0;
 }
 
 .photo-placeholder {
@@ -411,23 +327,22 @@ function goBack() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   width: 100%;
   height: 100%;
-  min-height: 120px;
-  color: #a09080;
+  color: #8b7355;
 }
 
 .photo-icon {
-  font-size: 2rem;
-  opacity: 0.5;
+  font-size: 1.85rem;
+  opacity: 0.45;
+  filter: sepia(0.3);
 }
 
 .photo-hint {
-  font-size: 0.75rem;
-  font-family: "STKaiti", "KaiTi", "楷体", serif;
-  letter-spacing: 0.1em;
-  opacity: 0.7;
+  font-family: "LXGW WenKai", "STKaiti", "KaiTi", serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
 }
 
 .photo-overlay {
@@ -435,90 +350,70 @@ function goBack() {
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 0.5rem 0.65rem;
-  background: linear-gradient(0deg, rgba(61, 41, 20, 0.65) 0%, transparent 100%);
-}
-
-.photo-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.35rem;
+  padding: 0.5rem 0.6rem;
+  background: linear-gradient(0deg, rgba(22, 16, 10, 0.75) 0%, transparent 100%);
 }
 
 .photo-date {
-  color: rgba(250, 248, 245, 0.85);
-  font-size: 0.65rem;
+  color: rgba(232, 213, 163, 0.9);
+  font-size: 0.62rem;
   font-family: monospace;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .photo-tag {
-  padding: 0.15rem 0.4rem;
-  color: rgba(250, 248, 245, 0.9);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  background: rgba(201, 169, 110, 0.5);
+  padding: 0.12rem 0.45rem;
+  color: #fff8e7;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  background: rgba(201, 169, 110, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
 }
 
-/* ===== 空状态 ===== */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 3rem 1.5rem;
+  gap: 0.65rem;
+  padding: 2.5rem 1rem;
   text-align: center;
 }
 
 .empty-icon {
-  font-size: 3rem;
-  opacity: 0.4;
+  font-size: 2.5rem;
+  opacity: 0.35;
 }
 
 .empty-title {
   margin: 0;
-  color: #8b7355;
+  color: #5c4033;
+  font-family: "LXGW WenKai", "STKaiti", "KaiTi", serif;
   font-size: 1rem;
-  font-family: "STKaiti", "KaiTi", "楷体", serif;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
 }
 
 .empty-desc {
   margin: 0;
-  color: #a09080;
-  font-size: 0.8rem;
-  line-height: 1.6;
   max-width: 280px;
+  color: #8b7355;
+  font-size: 0.82rem;
+  line-height: 1.65;
 }
 
-/* ===== 响应式 ===== */
 @media (max-width: 640px) {
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .top-bar {
-    padding: 0.75rem 1rem;
-  }
-
-  .page-title {
-    font-size: 0.95rem;
-  }
-
-  .album-count {
-    font-size: 0.75rem;
-  }
-
-  .category-tabs {
-    gap: 0.35rem;
-  }
-
-  .tab-btn {
-    padding: 0.4rem 0.65rem;
-    font-size: 0.78rem;
+  .photo-item.large {
+    grid-column: span 2;
+    grid-row: span 1;
+    aspect-ratio: 16 / 10;
   }
 }
 </style>
