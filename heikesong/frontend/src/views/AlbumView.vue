@@ -1,5 +1,9 @@
 <template>
-  <HubSubPageLayout title="时光相册" kicker="1995 · Memory · Album">
+  <HubSubPageLayout
+    title="时光相册"
+    kicker="1995 · Memory · Album"
+    wide-content
+  >
     <template #header-extra>
       <div class="album-count">
         <span class="count-num">{{ totalPhotos }}</span>
@@ -30,27 +34,11 @@
       <span class="section-line" />
     </div>
 
-    <div v-if="currentPhotos.length" class="photo-grid">
-      <article
-        v-for="(photo, idx) in currentPhotos"
-        :key="`${activeCategory}-${idx}`"
-        class="photo-item"
-        :class="{ large: photo.size === 'large' }"
-      >
-        <div class="photo-frame">
-          <div class="frame-corner-mark tl" />
-          <div class="frame-corner-mark br" />
-          <div class="photo-placeholder">
-            <span class="photo-icon">&#127902;</span>
-            <span class="photo-hint">{{ photo.title }}</span>
-          </div>
-          <div class="photo-overlay">
-            <span class="photo-date">{{ photo.date }}</span>
-            <span v-if="photo.tag" class="photo-tag">{{ photo.tag }}</span>
-          </div>
-        </div>
-      </article>
-    </div>
+    <Album3DShowcase
+      v-if="currentPhotos.length"
+      :photos="currentPhotos"
+      :category-key="activeCategory"
+    />
 
     <div v-else class="empty-state">
       <span class="empty-icon">&#128247;</span>
@@ -65,10 +53,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import HubSubPageLayout from "@/components/hub/HubSubPageLayout.vue";
+import Album3DShowcase from "@/components/album/Album3DShowcase.vue";
 
 interface PhotoItem {
   title: string;
   date: string;
+  src?: string;
   tag?: string;
   size?: "normal" | "large";
 }
@@ -86,9 +76,25 @@ const categories = ref<Category[]>([
     name: "剧情瞬间",
     icon: "&#127916;",
     photos: [
-      { title: "重生之始", date: "1995.03.15", tag: "主线" },
-      { title: "录像厅之夜", date: "1995.04.02", tag: "主线" },
-      { title: "街头直播", date: "1995.05.18", tag: "主线", size: "large" },
+      {
+        title: "初遇",
+        date: "1995.03.15",
+        tag: "主线",
+        src: "/images/album/chuyu.png",
+      },
+      {
+        title: "相知",
+        date: "1995.04.10",
+        tag: "主线",
+        src: "/images/album/xiangzhi.jpg",
+      },
+      {
+        title: "共赴",
+        date: "1995.05.18",
+        tag: "主线",
+        size: "large",
+        src: "/images/album/gongfu.jpg",
+      },
     ],
   },
   {
@@ -255,126 +261,6 @@ const totalPhotos = computed(() =>
   letter-spacing: 0.2em;
 }
 
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.85rem;
-}
-
-.photo-item {
-  aspect-ratio: 1;
-  cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.photo-item.large {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.photo-item:hover {
-  transform: translateY(-4px);
-}
-
-.photo-frame {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 120px;
-  background: linear-gradient(165deg, #fffdf9 0%, #f3ebe0 100%);
-  border: 1px solid rgba(201, 169, 110, 0.42);
-  border-radius: 10px;
-  box-shadow:
-    0 4px 16px rgba(61, 41, 20, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  overflow: hidden;
-  transition:
-    box-shadow 0.35s ease,
-    border-color 0.35s ease;
-}
-
-.photo-item:hover .photo-frame {
-  border-color: rgba(201, 169, 110, 0.65);
-  box-shadow:
-    0 12px 28px rgba(61, 41, 20, 0.12),
-    0 0 20px rgba(201, 169, 110, 0.12);
-}
-
-.frame-corner-mark {
-  position: absolute;
-  z-index: 2;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(201, 169, 110, 0.55);
-  border-style: solid;
-  pointer-events: none;
-}
-
-.frame-corner-mark.tl {
-  top: 6px;
-  left: 6px;
-  border-width: 2px 0 0 2px;
-}
-
-.frame-corner-mark.br {
-  right: 6px;
-  bottom: 6px;
-  border-width: 0 2px 2px 0;
-}
-
-.photo-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  width: 100%;
-  height: 100%;
-  color: #8b7355;
-}
-
-.photo-icon {
-  font-size: 1.85rem;
-  opacity: 0.45;
-  filter: sepia(0.3);
-}
-
-.photo-hint {
-  font-family: "LXGW WenKai", "STKaiti", "KaiTi", serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-}
-
-.photo-overlay {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.5rem 0.6rem;
-  background: linear-gradient(0deg, rgba(22, 16, 10, 0.75) 0%, transparent 100%);
-}
-
-.photo-date {
-  color: rgba(232, 213, 163, 0.9);
-  font-size: 0.62rem;
-  font-family: monospace;
-  letter-spacing: 0.06em;
-}
-
-.photo-tag {
-  padding: 0.12rem 0.45rem;
-  color: #fff8e7;
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
-  background: rgba(201, 169, 110, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-}
-
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -405,15 +291,4 @@ const totalPhotos = computed(() =>
   line-height: 1.65;
 }
 
-@media (max-width: 640px) {
-  .photo-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .photo-item.large {
-    grid-column: span 2;
-    grid-row: span 1;
-    aspect-ratio: 16 / 10;
-  }
-}
 </style>

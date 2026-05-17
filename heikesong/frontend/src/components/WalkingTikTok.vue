@@ -2,51 +2,61 @@
   <Teleport to="body">
     <div
       class="walking-tiktok"
-      :class="[currentState, { dragging: isDragging, landed: isLanded }]"
+      :class="[
+        currentState,
+        { dragging: isDragging, landed: isLanded, celebrating: isCelebrating },
+      ]"
       :style="positionStyle"
       @mousedown="startDrag"
     >
-    <div class="tiktok-body">
-      <div class="tiktok-head">
-        <svg class="tiktok-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"
-          />
-        </svg>
-        <div class="tiktok-eyes">
-          <span class="eye eye-left"></span>
-          <span class="eye eye-right"></span>
+      <div class="tiktok-body">
+        <div class="tiktok-head">
+          <svg class="tiktok-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"
+            />
+          </svg>
+          <div class="tiktok-eyes">
+            <span class="eye eye-left"></span>
+            <span class="eye eye-right"></span>
+          </div>
+          <div class="eye-brow left-brow" :class="{ raised: isThinking }"></div>
+          <div
+            class="eye-brow right-brow"
+            :class="{ raised: isThinking }"
+          ></div>
         </div>
-        <div class="eye-brow left-brow" :class="{ raised: isThinking }"></div>
-        <div class="eye-brow right-brow" :class="{ raised: isThinking }"></div>
-      </div>
-      <div class="thinking-bubble" v-if="isThinking">
-        <div class="thought-content">
-          <span class="thought-dot" v-for="n in 3" :key="n"></span>
+        <div class="thinking-bubble" v-if="isThinking">
+          <div class="thought-content">
+            <span class="thought-dot" v-for="n in 3" :key="n"></span>
+          </div>
+        </div>
+        <div
+          class="mood-indicator"
+          v-if="!isThinking && !isWalking && !isDragging && !isCelebrating"
+        >
+          <span class="mood-emoji">{{ moodEmoji }}</span>
+        </div>
+        <div class="celebration-effect" v-if="isCelebrating">
+          <span class="confetti" v-for="i in 8" :key="i"></span>
+          <span class="star" v-for="i in 4" :key="'star' + i"></span>
         </div>
       </div>
-      <div
-        class="mood-indicator"
-        v-if="!isThinking && !isWalking && !isDragging"
-      >
-        <span class="mood-emoji">{{ moodEmoji }}</span>
+      <div class="tiktok-legs">
+        <div
+          class="leg leg-left"
+          :class="{ stepping: isWalking && !isDragging }"
+        ></div>
+        <div
+          class="leg leg-right"
+          :class="{ stepping: isWalking && !isDragging }"
+        ></div>
       </div>
-    </div>
-    <div class="tiktok-legs">
       <div
-        class="leg leg-left"
-        :class="{ stepping: isWalking && !isDragging }"
+        class="tiktok-shadow"
+        :class="{ walking: isWalking && !isDragging, dragging: isDragging }"
       ></div>
-      <div
-        class="leg leg-right"
-        :class="{ stepping: isWalking && !isDragging }"
-      ></div>
-    </div>
-    <div
-      class="tiktok-shadow"
-      :class="{ walking: isWalking && !isDragging, dragging: isDragging }"
-    ></div>
-    <div class="click-hint" v-if="!isDragging">拖拽/点击</div>
+      <div class="click-hint" v-if="!isDragging">拖拽/点击</div>
     </div>
   </Teleport>
 </template>
@@ -73,12 +83,32 @@ const isThinking = ref(false);
 const isDragging = ref(false);
 const isDragged = ref(false);
 const isLanded = ref(false);
+const isCelebrating = ref(false);
+const isSleeping = ref(false);
+const isWaving = ref(false);
 const position = ref(-60);
 const topPosition = ref<number | null>(null);
 
 const moodIndex = ref(0);
-const moods = ["😊", "😄", "🤔", "😌", "🧐", "😴"];
-const moodEmoji = computed(() => moods[moodIndex.value]);
+const moods = [
+  { emoji: "😊", name: "happy" },
+  { emoji: "😄", name: "excited" },
+  { emoji: "🤔", name: "thinking" },
+  { emoji: "😌", name: "relaxed" },
+  { emoji: "🧐", name: "curious" },
+  { emoji: "😴", name: "sleepy" },
+  { emoji: "🥳", name: "party" },
+  { emoji: "😎", name: "cool" },
+  { emoji: "🤗", name: "hug" },
+  { emoji: "😇", name: "angel" },
+];
+const moodEmoji = computed(() => moods[moodIndex.value].emoji);
+const currentMood = computed(() => moods[moodIndex.value].name);
+
+let clickCount = 0;
+let lastClickTime = 0;
+let secretCode = "";
+const secretCodeTarget = "1234";
 
 const positionStyle = computed(() => {
   const style: Record<string, string> = {
@@ -104,8 +134,8 @@ const tiktokWidth = 60;
 let velocityX = 0;
 let velocityY = 0;
 const gravity = 0.6;
-const bounce = 0.65;
-const friction = 0.98;
+const bounce = 0.7;
+const friction = 0.995; // 降低摩擦，滑行更远
 const DRAG_THRESHOLD = 8;
 
 function getWalkBottom(): number {
@@ -116,6 +146,9 @@ let dragOffsetX = 0;
 let dragOffsetY = 0;
 let pointerStartX = 0;
 let pointerStartY = 0;
+let lastX = 0;
+let lastY = 0;
+let lastTime = 0;
 
 const currentState = ref("idle");
 
@@ -124,7 +157,7 @@ function getRandomTime(min: number, max: number): number {
 }
 
 function pickNextState(): string {
-  const weights = { idle: 2, thinking: 3, walking: 5 };
+  const weights = { idle: 2, thinking: 2, walking: 4, sleeping: 1, waving: 1 };
   const total = Object.values(weights).reduce((a, b) => a + b, 0);
   let random = Math.random() * total;
 
@@ -142,15 +175,33 @@ function setState(state: string) {
     case "walking":
       isWalking.value = true;
       isThinking.value = false;
+      isSleeping.value = false;
+      isWaving.value = false;
       break;
     case "thinking":
       isWalking.value = false;
       isThinking.value = true;
+      isSleeping.value = false;
+      isWaving.value = false;
+      break;
+    case "sleeping":
+      isWalking.value = false;
+      isThinking.value = false;
+      isSleeping.value = true;
+      isWaving.value = false;
+      break;
+    case "waving":
+      isWalking.value = false;
+      isThinking.value = false;
+      isSleeping.value = false;
+      isWaving.value = true;
       break;
     case "idle":
     default:
       isWalking.value = false;
       isThinking.value = false;
+      isSleeping.value = false;
+      isWaving.value = false;
       break;
   }
 
@@ -170,6 +221,12 @@ function scheduleNextState() {
       break;
     case "thinking":
       duration = getRandomTime(2000, 4000);
+      break;
+    case "sleeping":
+      duration = getRandomTime(5000, 10000);
+      break;
+    case "waving":
+      duration = getRandomTime(2000, 3000);
       break;
     case "idle":
     default:
@@ -225,6 +282,9 @@ function startDrag(e: MouseEvent) {
 
   velocityX = 0;
   velocityY = 0;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  lastTime = Date.now();
 
   document.addEventListener("mousemove", onDrag);
   document.addEventListener("mouseup", endDrag);
@@ -232,6 +292,23 @@ function startDrag(e: MouseEvent) {
 
 function onDrag(e: MouseEvent) {
   if (!isDragging.value) return;
+
+  const now = Date.now();
+  const dt = now - lastTime;
+
+  if (dt > 0) {
+    // 计算实时速度（像素/毫秒）
+    const vx = (e.clientX - lastX) / dt;
+    const vy = (e.clientY - lastY) / dt;
+
+    // 平滑更新速度，避免突变
+    velocityX = velocityX * 0.7 + vx * 0.3;
+    velocityY = velocityY * 0.7 + vy * 0.3;
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+    lastTime = now;
+  }
 
   const moved = Math.hypot(
     e.clientX - pointerStartX,
@@ -261,16 +338,52 @@ function endDrag(e: MouseEvent) {
   document.removeEventListener("mouseup", endDrag);
 
   if (!wasDrag) {
-    emit("click");
+    handleClick();
     topPosition.value = null;
     isDragged.value = false;
     resumeNormalBehavior();
     return;
   }
 
-  velocityX = (e.clientX - dragOffsetX - position.value) * 0.3;
-  velocityY = -8;
+  // 直接使用拖拽过程中计算好的速度，乘以系数让效果更明显
+  velocityX = velocityX * 16; // 转换为像素/帧（约16ms/帧）
+  velocityY = velocityY * 16;
   startPhysics();
+}
+
+function handleClick() {
+  const now = Date.now();
+  const timeDiff = now - lastClickTime;
+
+  if (timeDiff < 500) {
+    clickCount++;
+  } else {
+    clickCount = 1;
+  }
+  lastClickTime = now;
+
+  if (clickCount === 3) {
+    triggerCelebration();
+    clickCount = 0;
+  } else if (clickCount === 5) {
+    triggerSecretCode();
+    clickCount = 0;
+  }
+
+  moodIndex.value = (moodIndex.value + 1) % moods.length;
+  emit("click");
+}
+
+function triggerCelebration() {
+  isCelebrating.value = true;
+  setTimeout(() => {
+    isCelebrating.value = false;
+  }, 3000);
+}
+
+function triggerSecretCode() {
+  moodIndex.value = 6;
+  triggerCelebration();
 }
 
 function startPhysics() {
@@ -420,6 +533,22 @@ onUnmounted(() => {
   animation: landSquish 0.3s ease-out;
 }
 
+.walking-tiktok.sleeping .tiktok-head {
+  animation: sleepBounce 2s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.walking-tiktok.waving .tiktok-head {
+  animation: waveBounce 0.5s ease-in-out infinite;
+}
+
+.walking-tiktok.celebrating .tiktok-head {
+  animation: celebrateJump 0.3s ease-in-out infinite;
+  box-shadow:
+    0 5px 20px rgba(254, 44, 85, 0.6),
+    0 0 50px rgba(37, 244, 238, 0.4);
+}
+
 @keyframes bodyBounce {
   0%,
   100% {
@@ -465,6 +594,36 @@ onUnmounted(() => {
   }
   100% {
     transform: scaleY(1) scaleX(1);
+  }
+}
+
+@keyframes sleepBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes waveBounce {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes celebrateJump {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.1);
   }
 }
 
@@ -738,5 +897,133 @@ onUnmounted(() => {
 .walking-tiktok:hover .tiktok-head {
   animation: none;
   transform: scale(1.1);
+}
+
+.walking-tiktok.sleeping .eye {
+  animation: sleepBlink 2s ease-in-out infinite;
+}
+
+@keyframes sleepBlink {
+  0%,
+  20%,
+  100% {
+    transform: scaleY(0.1);
+  }
+  10%,
+  30% {
+    transform: scaleY(1);
+  }
+}
+
+.celebration-effect {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 80px;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: confettiFall 1.5s ease-out infinite;
+}
+
+.confetti:nth-child(1) {
+  background: #fe2c55;
+  left: 10%;
+  animation-delay: 0s;
+}
+.confetti:nth-child(2) {
+  background: #25f4ee;
+  left: 25%;
+  animation-delay: 0.1s;
+}
+.confetti:nth-child(3) {
+  background: #ffeb3b;
+  left: 40%;
+  animation-delay: 0.2s;
+}
+.confetti:nth-child(4) {
+  background: #4caf50;
+  left: 55%;
+  animation-delay: 0.3s;
+}
+.confetti:nth-child(5) {
+  background: #2196f3;
+  left: 70%;
+  animation-delay: 0.4s;
+}
+.confetti:nth-child(6) {
+  background: #9c27b0;
+  left: 85%;
+  animation-delay: 0.5s;
+}
+.confetti:nth-child(7) {
+  background: #ff9800;
+  left: 15%;
+  animation-delay: 0.6s;
+}
+.confetti:nth-child(8) {
+  background: #e91e63;
+  left: 80%;
+  animation-delay: 0.7s;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(60px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.star {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #ffeb3b 0%, transparent 70%);
+  border-radius: 50%;
+  animation: starTwinkle 1s ease-in-out infinite;
+}
+
+.star:nth-child(1) {
+  left: 20%;
+  top: 10%;
+  animation-delay: 0s;
+}
+.star:nth-child(2) {
+  left: 70%;
+  top: 20%;
+  animation-delay: 0.2s;
+}
+.star:nth-child(3) {
+  left: 45%;
+  top: 5%;
+  animation-delay: 0.4s;
+}
+.star:nth-child(4) {
+  left: 85%;
+  top: 35%;
+  animation-delay: 0.6s;
+}
+
+@keyframes starTwinkle {
+  0%,
+  100% {
+    transform: scale(0.5);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 </style>

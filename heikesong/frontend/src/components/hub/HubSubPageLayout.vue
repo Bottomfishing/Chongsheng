@@ -1,5 +1,8 @@
 <template>
-  <div class="hub-sub-page" :class="{ 'has-particles': showParticles }">
+  <div
+    class="hub-sub-page"
+    :class="{ 'has-particles': showParticles, 'hub-sub-page--wide': wideContent }"
+  >
     <div class="paper-bg" />
     <div class="grain-overlay" />
     <div v-if="showParticles" class="particle-layer" aria-hidden="true">
@@ -25,9 +28,9 @@
       </div>
     </header>
 
-    <main class="hub-sub-main">
-      <div class="scroll-plate">
-        <div class="scroll-inner">
+    <main class="hub-sub-main" :class="{ 'hub-sub-main--wide': wideContent }">
+      <div class="scroll-plate" :class="{ 'scroll-plate--wide': wideContent }">
+        <div class="scroll-inner" :class="{ 'scroll-inner--wide': wideContent }">
           <slot />
         </div>
       </div>
@@ -40,6 +43,8 @@ defineProps<{
   title: string;
   kicker?: string;
   showParticles?: boolean;
+  /** 允许横向溢出（如 3D 相册），避免两侧照片被裁切 */
+  wideContent?: boolean;
 }>();
 </script>
 
@@ -362,6 +367,21 @@ defineProps<{
 .scroll-inner::-webkit-scrollbar-thumb {
   background: rgba(201, 169, 110, 0.45);
   border-radius: 999px;
+}
+
+.scroll-inner--wide {
+  overflow-x: visible;
+  overflow-y: auto;
+}
+
+.hub-sub-page--wide {
+  overflow-x: visible;
+  overflow-y: hidden;
+}
+
+.hub-sub-main--wide,
+.scroll-plate--wide {
+  overflow: visible;
 }
 
 @media (max-width: 640px) {

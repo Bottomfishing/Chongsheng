@@ -1,95 +1,158 @@
 {
-  "startNodeId": "video_wake_up",
+  "startNodeId": "video_caochang1",
   "nodes": {
-    "video_wake_up": {
+    "video_caochang1": {
       "type": "video",
-      "src": "/videos/wake_up.mp4",
-      "title": "一觉醒来",
-      "description": "你在九十年代的硬板床上醒来，发现口袋里的手机居然还能刷抖音。",
-      "triggerTime": 8,
-      "next": "choice_wake_up"
+      "src": "/videos/操场1/操场1-1.mp4",
+      "title": "2016济宁学院操场",
+      "description": "2016年9月，短视频风口前夜。",
+      "next": "video_caochang2",
+      "subtitles": [
+        { "time": 5, "text": "领取你的身份|牛天真", "duration": 3 }
+      ]
     },
-    "choice_wake_up": {
+    "video_caochang2": {
+      "type": "video",
+      "src": "/videos/操场2/操场2-1.mp4",
+      "title": "操场·运动会现场",
+      "next": "video_caochang3",
+      "lotteryAt": 16,
+      "pauseAt": 52,
+      "pauseChoices": [
+        { "id": "A", "label": "幽默解围", "next": "video_caochang_youmo" },
+        { "id": "B", "label": "温柔护短", "next": "video_caochang_wenrou" }
+      ]
+    },
+    "video_caochang_youmo": {
+      "type": "video",
+      "src": "/videos/操场幽默/操场幽默-1.mp4",
+      "title": "操场·幽默解围",
+      "next": "video_caochang3"
+    },
+    "video_caochang_wenrou": {
+      "type": "video",
+      "src": "/videos/操场温柔/操场温柔-1.mp4",
+      "title": "操场·温柔护短",
+      "next": "video_caochang3"
+    },
+    "video_caochang3": {
+      "type": "video",
+      "src": "/videos/操场3/操场3-1.mp4",
+      "title": "操场·后续",
+      "next": "video_louxia1",
+      "pauseLabel": "打斗",
+      "pauseAction": "fighting-game"
+    },
+    "video_louxia1": {
+      "type": "video",
+      "src": "/videos/楼下1/楼下1-1.mp4",
+      "title": "宿舍楼下·夜",
+      "next": "video_louxia2",
+      "pauseAt": 4,
+      "pauseLabel": "跟男主坦白"
+    },
+    "video_louxia2": {
+      "type": "video",
+      "src": "/videos/楼下2/楼下2-1.mp4",
+      "title": "宿舍楼下·交谈",
+      "next": "video_louxia3",
+      "pauseAt": 9,
+      "pauseLabel": "帮女主签合同",
+      "pauseAction": "mini-game"
+    },
+    "video_louxia3": {
+      "type": "video",
+      "src": "/videos/楼下3/楼下3-1.mp4",
+      "title": "宿舍楼下·约定",
+      "next": "video_louxia4",
+      "pauseAt": 12,
+      "pauseLabel": "签署合同",
+      "pauseAction": "signature-pad"
+    },
+    "video_louxia4": {
+      "type": "video",
+      "src": "/videos/楼下4/楼下4-1.mp4",
+      "title": "宿舍楼下·出发",
+      "next": "video_paomian1"
+    },
+    "video_paomian1": {
+      "type": "video",
+      "src": "/videos/泡面1/泡面1-1.mp4",
+      "title": "泡面·深夜",
+      "next": "video_paomian2",
+      "pauseAt": 15,
+      "pauseLabel": "寻找线索",
+      "pauseAction": "link-game"
+    },
+    "video_paomian2": {
+      "type": "video",
+      "src": "/videos/泡面2/泡面2-1.mp4",
+      "title": "泡面·续",
+      "next": "video_xiyang1"
+    },
+    "video_xiyang1": {
+      "type": "video",
+      "src": "/videos/夕阳1/夕阳1-1.mp4",
+      "title": "夕阳·黄昏",
+      "next": "choice_xiyang",
+      "holdOnEnd": true,
+      "pauseAt": 1,
+      "pauseLabel": "翻煎饼",
+      "pauseAction": "pancake-game",
+      "pauseResume": true
+    },
+    "choice_xiyang": {
       "type": "choice",
-      "prompt": "你发现自己重生回了1995年，口袋里的手机竟然还能刷抖音。你的第一反应是？",
+      "prompt": "夕阳下，你会怎么做？",
       "options": [
         {
           "id": "A",
-          "label": "先打开抖音看看",
-          "next": "video_open_douyin"
+          "label": "安慰",
+          "next": "video_xiyang_a"
         },
         {
           "id": "B",
-          "label": "看看日历现在几几年",
-          "next": "video_check_calendar"
+          "label": "不理",
+          "next": "video_xiyang_b"
         }
       ]
     },
-    "video_open_douyin": {
+    "video_xiyang_a": {
       "type": "video",
-      "src": "/videos/open_douyin.mp4",
-      "title": "打开抖音",
-      "description": "熟悉的短视频界面竟然真的亮了起来。",
-      "next": "choice_open_douyin"
+      "src": "/videos/夕阳选a安慰/夕阳选a安慰-1.mp4",
+      "title": "夕阳·安慰",
+      "next": "video_shoushiwu1"
     },
-    "choice_open_douyin": {
-      "type": "choice",
-      "prompt": "你打开抖音，短视频界面真的亮了起来。接下来你打算怎么利用这个'时代外挂'？",
-      "options": [
-        {
-          "id": "A",
-          "label": "拍个视频发到村里",
-          "next": "ending_village_broadcast"
-        },
-        {
-          "id": "B",
-          "label": "去县城找网吧直播",
-          "next": "ending_county_stream"
-        }
-      ]
-    },
-    "video_check_calendar": {
+    "video_xiyang_b": {
       "type": "video",
-      "src": "/videos/check_calendar.mp4",
-      "title": "查看日历",
-      "description": "当你确认墙上写着1995年时，你开始思考这次重生该怎么改命。",
-      "next": "choice_check_calendar"
+      "src": "/videos/夕阳选b不理/夕阳选b不理-1.mp4",
+      "title": "夕阳·不理",
+      "next": "video_shoushiwu1"
     },
-    "choice_check_calendar": {
-      "type": "choice",
-      "prompt": "你确认现在是1995年，开始思考这次重生该怎么改命。你决定先做什么？",
-      "options": [
-        {
-          "id": "A",
-          "label": "去找当年的自己",
-          "next": "ending_find_self"
-        },
-        {
-          "id": "B",
-          "label": "先去买股票",
-          "next": "ending_buy_stocks"
-        }
-      ]
+    "video_shoushiwu1": {
+      "type": "video",
+      "src": "/videos/手势舞1/手势舞1-1.mp4",
+      "title": "手势舞·练习",
+      "next": "video_shoushiwu_end",
+      "pauseAt": 2,
+      "pauseLabel": "发布新帖",
+      "pauseAction": "777-page"
     },
-    "ending_village_broadcast": {
+    "video_shoushiwu_end": {
+      "type": "video",
+      "src": "/videos/手势舞结束/手势舞结束-1.mp4",
+      "title": "手势舞·结束",
+      "next": "ending_high"
+    },
+    "ending_high": {
       "type": "ending",
-      "title": "结局：村口第一网红",
-      "text": "你把九十年代的日常拍成短视频，凭一己之力让整个村口提前进入'上热门'时代。"
+      "title": "结局：心动告白",
+      "text": "下播后，你拿着手机快步跑到天真面前，耳根通红，眼神真挚羞涩。\n\n费启鸣：「谢谢你，我好像……有点喜欢你了。」\n\n天真（温柔浅笑）：「别喜欢我，去喜欢你闪闪发光的未来。」\n\n两人并肩站在校园路灯下，背影青涩温暖。\n\n——不是我成就了顶流，是他本就自带光芒，我只是刚好见证了他的盛开。"
     },
-    "ending_county_stream": {
+    "ending_growth": {
       "type": "ending",
-      "title": "结局：县城直播先驱",
-      "text": "你来到县城网吧，开启了中国最早的直播生涯，成为一代传奇。"
-    },
-    "ending_find_self": {
-      "type": "ending",
-      "title": "结局：遇见当年的自己",
-      "text": "你找到了1995年的自己，两个灵魂相遇，决定一起改变未来。"
-    },
-    "ending_buy_stocks": {
-      "type": "ending",
-      "title": "结局：股神重生",
-      "text": "你利用未来的知识炒股，成为了九十年代的首富，但似乎错过了更重要的东西。"
+      "title": "结局：成长救赎",
+      "text": "下播后，你冷静沉稳，递给天真一瓶可乐，眼神清澈坚定，褪去所有青涩，满心感恩。\n\n费启鸣：「我会记住你说的所有话，好好走自己的路，不辜负自己，也不辜负你的期待。」\n\n天真（欣慰浅笑）：「你本来就值得闪闪发光。」\n\n两人并肩站在校园路灯下，背影青涩温暖。\n\n——不是我成就了顶流，是他本就自带光芒，我只是刚好见证了他的盛开。"
     }
   }
 }

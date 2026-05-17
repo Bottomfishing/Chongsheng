@@ -55,6 +55,10 @@ export class StoryEngine {
     return this.story.startNodeId;
   }
 
+  getNodeById(nodeId: string): StoryNode | null {
+    return this.story.nodes[nodeId] ?? null;
+  }
+
   goto(nodeId: string) {
     this.getNode(nodeId);
     this.state = createState(nodeId, this.state.choiceLog);
@@ -102,6 +106,10 @@ export class StoryEngine {
     Object.entries(story.nodes).forEach(([nodeId, node]) => {
       if (node.type === "video" && !story.nodes[node.next]) {
         throw new Error(`Video node "${nodeId}" points to missing next node "${node.next}".`);
+      }
+
+      if (node.type === "narration" && !story.nodes[node.next]) {
+        throw new Error(`Narration node "${nodeId}" points to missing next node "${node.next}".`);
       }
 
       if (node.type === "choice") {

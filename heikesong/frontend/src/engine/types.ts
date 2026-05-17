@@ -1,5 +1,11 @@
 export type OptionId = "A" | "B" | string;
 
+export interface VideoSubtitle {
+  time: number;
+  text: string;
+  duration?: number;
+}
+
 export interface VideoNode {
   type: "video";
   src: string;
@@ -7,6 +13,21 @@ export interface VideoNode {
   title?: string;
   description?: string;
   triggerTime?: number;
+  subtitles?: VideoSubtitle[];
+  holdOnEnd?: boolean;
+  lotteryAt?: number;
+  pauseAt?: number;
+  pauseLabel?: string;
+  pauseAction?: string;
+  pauseResume?: boolean;
+  pauseChoices?: ChoiceOption[];
+}
+
+export interface NarrationNode {
+  type: "narration";
+  title: string;
+  text: string;
+  next: string;
 }
 
 export interface ChoiceOption {
@@ -27,7 +48,7 @@ export interface EndingNode {
   text: string;
 }
 
-export type StoryNode = VideoNode | ChoiceNode | EndingNode;
+export type StoryNode = VideoNode | NarrationNode | ChoiceNode | EndingNode;
 
 export interface StoryDefinition {
   startNodeId: string;

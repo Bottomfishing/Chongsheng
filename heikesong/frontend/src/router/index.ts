@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
+import ChaptersView from "@/views/ChaptersView.vue";
 import PlayerView from "@/views/PlayerView.vue";
 import SoulTalkView from "@/views/SoulTalkView.vue";
 import AchievementView from "@/views/AchievementView.vue";
 import AlbumView from "@/views/AlbumView.vue";
+import MiniGameView from "@/views/MiniGameView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,6 +14,12 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
+      meta: { transition: "page-slide" },
+    },
+    {
+      path: "/chapters",
+      name: "chapters",
+      component: ChaptersView,
       meta: { transition: "page-slide" },
     },
     {
@@ -36,6 +44,12 @@ const router = createRouter({
       path: "/album",
       name: "album",
       component: AlbumView,
+      meta: { transition: "page-slide" },
+    },
+    {
+      path: "/mini-game",
+      name: "mini-game",
+      component: MiniGameView,
       meta: { transition: "page-slide" },
     },
   ],

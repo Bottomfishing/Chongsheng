@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园论坛-资讯滑动页</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#f5f7fa;font-family:微软雅黑;}
+        .header{background:#2563eb;color:#fff;padding:15px;text-align:center;font-size:18px;font-weight:bold;}
+        /* 滑动容器 */
+        .scroll-box{width:100%;height:80vh;overflow-y:auto;}
+        /* 资讯卡片 */
+        .info-item{background:#fff;margin:10px;border-radius:8px;padding:15px;border:1px solid #eee;}
+        .info-title{font-size:16px;color:#222;margin-bottom:8px;}
+        .info-desc{font-size:14px;color:#666;line-height:1.6;}
+        .info-time{font-size:12px;color:#999;margin-top:10px;}
+    </style>
+</head>
+<body>
+<div class="header">校园论坛 最新资讯</div>
+<div class="scroll-box" id="scrollList">
+    <!-- 资讯自动渲染 -->
+</div>
+
+<script>
+    // 校园论坛资讯数据
+    const infoData = [
+        {title:"",desc:"校霸对上废柴，这场对决太有看点",time:"2026-05-17"},
+        {title:"",desc:"没想到他俩会对上，坐等精彩PK",time:"2026-05-17"},
+        {title:"",desc:"强弱反差对决，吃瓜蹲全程",time:"2026-05-17"},
+        {title:"",desc:"废柴敢应战校霸，胆子真大",time:"2026-05-17"},
+        {title:"",desc:"这场较量一出全校都在热议",time:"2026-05-17"},
+        {title:"",desc:"好奇最后谁能拿下对局",time:"2026-05-17"},
+        {title:"",desc:"反差组合PK，看点直接拉满",time:"2026-05-17"},
+        {title:"",desc:"全校都在扒这场对决始末",time:"2026-05-17"}
+    ];
+
+    // 渲染滑动资讯
+    const listDom = document.getElementById('scrollList');
+    infoData.forEach(item=>{
+        listDom.innerHTML += `
+    <div class="info-item">
+        <div class="info-title">${item.title}</div>
+        <div class="info-desc">${item.desc}</div>
+        <div class="info-time">发布时间：${item.time}</div>
+    </div>
+    `
+    })
+</script>
+</body>
+</html>

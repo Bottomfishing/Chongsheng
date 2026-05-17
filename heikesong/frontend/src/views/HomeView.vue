@@ -346,7 +346,7 @@
                   <div class="primary-icon-wrap">
                     <video
                       class="primary-icon-video"
-                      src="/videos/story-play-loop.mp4"
+                      src="/videos/制作GIF动图.mp4"
                       autoplay
                       loop
                       muted
@@ -449,11 +449,10 @@
           <button class="footer-btn" type="button" @click="backToLanding">
             <span class="btn-label">返回封面</span>
           </button>
-          <button
-            class="footer-btn"
-            type="button"
-            @click="settingsOpen = true"
-          >
+          <button class="footer-btn" type="button" @click="goMiniGame">
+            <span class="btn-label">直播冲榜</span>
+          </button>
+          <button class="footer-btn" type="button" @click="settingsOpen = true">
             <span class="btn-label">系统设置</span>
           </button>
         </footer>
@@ -528,7 +527,14 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, computed, watch } from "vue";
+import {
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  computed,
+  watch,
+} from "vue";
 import { useRoute } from "vue-router";
 import WalkingTikTok from "@/components/WalkingTikTok.vue";
 import TikTokChatDialog from "@/components/TikTokChatDialog.vue";
@@ -1007,7 +1013,11 @@ function dismissAchievementToast() {
 }
 
 function startGame() {
-  router.push("/play");
+  router.push("/chapters");
+}
+
+function goMiniGame() {
+  router.push("/mini-game");
 }
 
 function goSoulTalk() {
@@ -1160,11 +1170,7 @@ defineExpose({
       transparent 35%,
       rgba(139, 90, 43, 0.08) 100%
     ),
-    radial-gradient(
-      circle at 0% 0%,
-      rgba(255, 210, 140, 0.1),
-      transparent 38%
-    ),
+    radial-gradient(circle at 0% 0%, rgba(255, 210, 140, 0.1), transparent 38%),
     radial-gradient(
       circle at 100% 88%,
       rgba(180, 130, 80, 0.08),
@@ -2519,11 +2525,7 @@ defineExpose({
       transparent 35%,
       rgba(139, 90, 43, 0.07) 100%
     ),
-    radial-gradient(
-      circle at 0% 0%,
-      rgba(255, 210, 140, 0.1),
-      transparent 38%
-    ),
+    radial-gradient(circle at 0% 0%, rgba(255, 210, 140, 0.1), transparent 38%),
     radial-gradient(
       circle at 100% 85%,
       rgba(180, 130, 80, 0.08),
@@ -3204,7 +3206,7 @@ defineExpose({
     opacity 0.35s ease;
 }
 
-/* 卡片内容层 */
+/* 卡片内容层：透明，直接叠在卷轴背景图上 */
 .feature-card:not(.primary) > .card-content {
   position: relative;
   z-index: 2;
@@ -3214,34 +3216,28 @@ defineExpose({
   justify-content: center;
   width: calc(100% - 1.4rem);
   min-height: 200px;
-  margin: 2.6rem 0.7rem 2.2rem;
-  padding: 1.1rem 1rem 1rem;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 252, 247, 0.94) 0%,
-    rgba(248, 240, 228, 0.9) 100%
-  );
-  border: 1px solid rgba(201, 169, 110, 0.28);
-  border-radius: 10px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 4px 16px rgba(61, 41, 20, 0.06);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  margin: 4rem 0.7rem 2rem;
+  padding: 1.2rem 1rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  transition: transform 0.3s ease;
 }
 
-/* 复古卷轴卡片文字颜色 —— 深棕色系（白纸黑字，清晰可读） */
+/* 复古卷轴卡片文字 —— 深棕 + 轻阴影，叠在背景图上可读 */
 .feature-card:not(.primary) .card-title {
-  color: #5c3d1e;
+  color: #4a3018;
   font-weight: 500;
-  text-shadow: none;
+  text-shadow:
+    0 1px 0 rgba(255, 252, 247, 0.65),
+    0 0 12px rgba(255, 248, 235, 0.45);
 }
 
 .feature-card:not(.primary) .card-desc {
-  color: #6b4e2e;
+  color: #5c4030;
   opacity: 1;
-  text-shadow: none;
+  text-shadow: 0 1px 0 rgba(255, 252, 247, 0.55);
 }
 
 .feature-card:not(.primary) .card-tag {
@@ -3267,9 +3263,6 @@ defineExpose({
 }
 
 .feature-card:not(.primary):hover > .card-content {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 8px 24px rgba(61, 41, 20, 0.1);
   transform: translateY(-2px);
 }
 
