@@ -521,7 +521,7 @@
       :ground-offset="footerBarHeight"
       @click="isChatOpen = true"
     />
-
+    <FullscreenToggle />
     <TikTokChatDialog :isOpen="isChatOpen" @close="isChatOpen = false" />
   </div>
 </template>
@@ -538,6 +538,7 @@ import {
 import { useRoute } from "vue-router";
 import WalkingTikTok from "@/components/WalkingTikTok.vue";
 import TikTokChatDialog from "@/components/TikTokChatDialog.vue";
+import FullscreenToggle from "@/components/FullscreenToggle.vue";
 import TimeTravelPortal from "@/components/home/TimeTravelPortal.vue";
 import HomeAmbience from "@/components/home/HomeAmbience.vue";
 import RebirthManualPortal from "@/components/home/RebirthManualPortal.vue";
