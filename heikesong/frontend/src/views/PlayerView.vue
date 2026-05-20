@@ -83,15 +83,6 @@
       </Transition>
 
       <Transition name="lottery-fade">
-        <div v-if="miniGameVisible" class="lottery-overlay">
-          <div ref="miniGameHost" class="mini-game-host" />
-          <button class="lottery-close-btn" type="button" @click="closeMiniGame">
-            关闭 ×
-          </button>
-        </div>
-      </Transition>
-
-      <Transition name="lottery-fade">
         <div v-if="fightingGameVisible" class="lottery-overlay">
           <iframe
             src="/fighting-game/index.html"
@@ -178,11 +169,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { StoryEngine } from "@/engine/story";
 import type { RuntimeState, StoryNode, VideoNode, NarrationNode, ChoiceNode } from "@/engine/types";
-import { createStreamRushGame } from "@/games/streamRush/createStreamRushGame";
 import ChoiceScene from "@/scenes/ChoiceScene.vue";
 import EndingScene from "@/scenes/EndingScene.vue";
 import NarrationScene from "@/scenes/NarrationScene.vue";
@@ -200,15 +190,12 @@ const menuVisible = ref(false);
 const menuMode = ref<"save" | "load">("save");
 const videoHolding = ref(false);
 const lotteryVisible = ref(false);
-const miniGameVisible = ref(false);
-const miniGameHost = ref<HTMLElement | null>(null);
 const fightingGameVisible = ref(false);
 const linkGameVisible = ref(false);
 const signaturePadVisible = ref(false);
 const pancakeGameVisible = ref(false);
 const pageGameVisible = ref(false);
 const videoSceneRef = ref<InstanceType<typeof VideoScene> | null>(null);
-let miniGame: import("phaser").Game | null = null;
 
 const overlayChoiceOptions = computed(() => {
   if (!engine.value || currentNode.value?.type !== "video") return undefined;
@@ -297,9 +284,7 @@ function closeLottery() {
 }
 
 function handlePauseAction(action: string) {
-  if (action === "mini-game") {
-    openMiniGame();
-  } else if (action === "fighting-game") {
+  if (action === "fighting-game") {
     openFightingGame();
   } else if (action === "link-game") {
     openLinkGame();
@@ -318,27 +303,6 @@ function handlePauseChoice(nextNodeId: string) {
   if (!engine.value) return;
   engine.value.goto(nextNodeId);
   syncFromEngine();
-}
-
-async function openMiniGame() {
-  miniGameVisible.value = true;
-  await nextTick();
-  if (miniGameHost.value) {
-    miniGame = createStreamRushGame(miniGameHost.value);
-    const scene = miniGame.scene.getScene("stream-rush");
-    scene.events.on("stream-rush-finished", () => {
-      closeMiniGame();
-    });
-  }
-}
-
-function closeMiniGame() {
-  if (miniGame) {
-    miniGame.destroy(true);
-    miniGame = null;
-  }
-  miniGameVisible.value = false;
-  goToNextVideoNode();
 }
 
 function openFightingGame() {
@@ -430,13 +394,6 @@ function handleLoadSave(state: RuntimeState) {
 onMounted(() => {
   bootStory();
 });
-
-onBeforeUnmount(() => {
-  if (miniGame) {
-    miniGame.destroy(true);
-    miniGame = null;
-  }
-});
 </script>
 
 <style scoped>
@@ -497,14 +454,6 @@ onBeforeUnmount(() => {
 
 .lottery-close-btn:hover {
   background: rgba(255, 255, 255, 0.3);
-}
-
-.mini-game-host {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .lottery-fade-enter-active {

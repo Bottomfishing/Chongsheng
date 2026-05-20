@@ -34,13 +34,13 @@ const acts = [
     label: "第二幕",
     title: "创业之路·暗流涌动",
     img: "/images/网吧.jpg",
-    startNode: "scene3_montage",
+    startNode: "video_xiyang1",
   },
   {
     label: "第三幕",
     title: "巅峰对决·直播PK定胜负",
     img: "/images/舞厅.jpg",
-    startNode: "scene5_conspiracy",
+    startNode: "video_shoushiwu1",
   },
 ];
 

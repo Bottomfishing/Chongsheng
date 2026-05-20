@@ -66,7 +66,7 @@
               type="button"
               @mousemove="handleStartBtnMove"
               @mouseleave="handleStartBtnLeave"
-              @click="enterIntro"
+              @click="enterHome"
             >
               <span class="btn-border">
                 <span class="btn-inner">
@@ -128,146 +128,7 @@
       </section>
     </Transition>
 
-    <Transition name="fade">
-      <section
-        v-if="stage === 'intro'"
-        class="intro-video"
-        :class="{ shattered: screenShattered, warping: warpActive }"
-      >
-        <!-- 全屏碎裂覆盖层（视频播放时不显示） -->
-        <div
-          v-if="screenShattered && scene !== 'video'"
-          class="shatter-overlay"
-        >
-          <div
-            v-for="n in 12"
-            :key="n"
-            class="shatter-piece"
-            :class="`piece-${n}`"
-          />
-        </div>
 
-        <!-- 时空扭曲覆盖层（视频播放时不显示） -->
-        <div v-if="warpActive && scene !== 'video'" class="warp-overlay">
-          <div class="warp-ring" />
-          <div class="warp-ring delay-1" />
-          <div class="warp-ring delay-2" />
-          <div class="warp-vortex" />
-        </div>
-
-        <div v-if="scene === 'static'" class="tv-static">
-          <div
-            class="tv-frame"
-            :class="{ breaking: tvBrokenAnimating, broken: tvBroken }"
-            @click="breakTv"
-          >
-            <div v-if="tvBroken" class="tv-crack crack-1" />
-            <div v-if="tvBroken" class="tv-crack crack-2" />
-            <div v-if="tvBroken" class="tv-crack crack-3" />
-            <div class="tv-antennas" :class="{ broken: tvBroken }">
-              <div class="antenna left" :class="{ droop: tvBroken }">
-                <div class="antenna-base" />
-                <div class="antenna-rod" />
-                <div class="antenna-coil" />
-              </div>
-              <div class="antenna right" :class="{ droop: tvBroken }">
-                <div class="antenna-base" />
-                <div class="antenna-rod" />
-                <div class="antenna-coil" />
-              </div>
-            </div>
-            <div class="tv-brand" :class="{ broken: tvBroken }">重生牌</div>
-            <div class="tv-screen-bezel" :class="{ broken: tvBroken }">
-              <canvas
-                ref="staticCanvas"
-                class="static-canvas"
-                :class="{ off: tvBroken }"
-              />
-              <div v-if="!tvBroken" class="scanlines" />
-              <div v-if="!tvBroken" class="screen-glow" />
-              <div v-if="!tvBroken" class="screen-reflection" />
-              <div v-if="tvBroken" class="screen-off" />
-            </div>
-            <div class="tv-controls" :class="{ broken: tvBroken }">
-              <div class="knob">
-                <div class="knob-indicator" />
-              </div>
-              <div class="knob">
-                <div class="knob-indicator" />
-              </div>
-              <div class="speaker-grill">
-                <span v-for="n in 6" :key="n" class="grill-line" />
-              </div>
-            </div>
-            <div class="tv-feet" :class="{ broken: tvBroken }">
-              <div class="foot left" />
-              <div class="foot right" />
-            </div>
-          </div>
-          <div v-if="!tvBroken" class="status-text">信号接入中...</div>
-          <div v-else class="status-text broken-text">电视已被砸碎</div>
-          <div v-if="!tvBroken" class="signal-indicator">
-            <span
-              v-for="n in 5"
-              :key="n"
-              class="signal-bar"
-              :class="{ active: n <= signalStrength }"
-            />
-          </div>
-        </div>
-
-        <div v-if="scene === 'title'" class="title-scene">
-          <div class="vhs-overlay">
-            <div class="vhs-line" />
-            <div class="vhs-line" />
-            <div class="vhs-track">PLAY &#9654; 1995.05.16 00:00:00</div>
-          </div>
-          <div class="title-content">
-            <div class="title-label">本节目由</div>
-            <h2 class="intro-main-title">重生之回到九十年代玩抖音</h2>
-            <div class="title-label">独家赞助播出</div>
-            <div class="rec-badge">
-              <span class="rec-dot" />
-              <span>REC</span>
-            </div>
-          </div>
-          <div class="film-grain" />
-        </div>
-
-        <div v-if="scene === 'video'" class="video-scene">
-          <video
-            ref="introVideo"
-            class="intro-video-player"
-            src="/videos/娱乐新闻.mp4"
-            autoplay
-            playsinline
-            @timeupdate="onVideoProgress"
-            @ended="enterHome"
-          />
-        </div>
-
-        <Transition name="fade">
-          <button
-            v-if="canSkip"
-            class="skip-btn"
-            type="button"
-            @click="enterHome"
-          >
-            跳过 &#9654;&#9654;
-          </button>
-        </Transition>
-
-        <div class="progress-bar">
-          <div class="progress-track">
-            <div class="progress-fill" :style="{ width: `${progress}%` }" />
-          </div>
-          <div class="progress-hint">
-            <span class="progress-label">{{ progressLabel }}</span>
-            <span class="progress-percent">{{ Math.round(progress) }}%</span>
-          </div>
-        </div>
-      </section>
-    </Transition>
 
     <Transition name="fade">
       <section v-if="stage === 'home'" class="home-page">
@@ -448,9 +309,6 @@
           </button>
           <button class="footer-btn" type="button" @click="backToLanding">
             <span class="btn-label">返回封面</span>
-          </button>
-          <button class="footer-btn" type="button" @click="goMiniGame">
-            <span class="btn-label">直播冲榜</span>
           </button>
           <button class="footer-btn" type="button" @click="settingsOpen = true">
             <span class="btn-label">系统设置</span>
@@ -1017,10 +875,6 @@ function startGame() {
   router.push("/chapters");
 }
 
-function goMiniGame() {
-  router.push("/mini-game");
-}
-
 function goSoulTalk() {
   router.push("/soul-talk");
 }
@@ -1073,7 +927,7 @@ const achievementCountDisplay = computed(() => {
 
 function replayIntroFromSettings() {
   localStorage.removeItem(INTRO_SEEN_KEY);
-  void enterIntro();
+  enterHome();
 }
 
 function onSettingsDataCleared() {

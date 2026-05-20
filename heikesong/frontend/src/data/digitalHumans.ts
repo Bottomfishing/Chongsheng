@@ -3,7 +3,7 @@ import type { DigitalHuman } from "@/types/soulTalk";
 /**
  * 立绘/动画文件名与角色 id 不完全一致时，以 portrait / animation 字段为准。
  * 牛天真 = 粉色上衣（a-ning 资源）；阿宁 = 白衣牛仔裤（niu-tianzhen 资源）
- * 顺序：牛天真 → 李天佐 → 费启暗 → 阿宁
+ * 顺序：牛天真 → 费启暗 → 李天佐 → 阿宁
  */
 export const digitalHumans: DigitalHuman[] = [
   {
@@ -23,22 +23,6 @@ export const digitalHumans: DigitalHuman[] = [
     animation: "/characters/animations/a-ning.mp4",
   },
   {
-    id: "li-tianzuo",
-    name: "李天佐",
-    role: "社会哥 · 豪门少爷",
-    era: "1995 · 县城首富家",
-    description:
-      "家里有钱，走路带风，嘴上不饶人，但未必真的不在乎你。",
-    traits: ["有钱", "傲慢", "社会气"],
-    greeting:
-      "哟，找我？行啊，反正我闲着也是闲着。有话快说，别磨磨唧唧的。",
-    accent: "#8b6914",
-    accentSoft: "rgba(139, 105, 20, 0.14)",
-    symbol: "李",
-    portrait: "/characters/li-tianzuo.png",
-    animation: "/characters/animations/li-tianzuo.mp4",
-  },
-  {
     id: "fei-qian",
     name: "费启暗",
     role: "逆袭废柴 · 蛰伏者",
@@ -51,6 +35,22 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#5a6b7a",
     accentSoft: "rgba(90, 107, 122, 0.16)",
     symbol: "费",
+    portrait: "/characters/li-tianzuo.png",
+    animation: "/characters/animations/li-tianzuo.mp4",
+  },
+  {
+    id: "li-tianzuo",
+    name: "李天佐",
+    role: "社会哥 · 豪门少爷",
+    era: "1995 · 县城首富家",
+    description:
+      "家里有钱，走路带风，嘴上不饶人，但未必真的不在乎你。",
+    traits: ["有钱", "傲慢", "社会气"],
+    greeting:
+      "哟，找我？行啊，反正我闲着也是闲着。有话快说，别磨磨唧唧的。",
+    accent: "#8b6914",
+    accentSoft: "rgba(139, 105, 20, 0.14)",
+    symbol: "李",
     portrait: "/characters/fei-qian.png",
     animation: "/characters/animations/fei-qian.mp4",
   },

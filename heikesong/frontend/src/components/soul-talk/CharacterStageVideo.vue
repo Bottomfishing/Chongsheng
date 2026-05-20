@@ -29,7 +29,6 @@
               ref="videoEl"
               class="stage-video-el"
               :src="resolvedSrc"
-              muted
               playsinline
               preload="metadata"
               @loadeddata="onLoaded"
@@ -92,8 +91,6 @@ function resolveMediaUrl(path: string) {
 }
 
 function setupVideoElement(el: HTMLVideoElement) {
-  el.muted = true;
-  el.defaultMuted = true;
   el.loop = false;
   el.playsInline = true;
   el.setAttribute("playsinline", "");

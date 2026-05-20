@@ -57,8 +57,7 @@
       "title": "宿舍楼下·交谈",
       "next": "video_louxia3",
       "pauseAt": 9,
-      "pauseLabel": "帮女主签合同",
-      "pauseAction": "mini-game"
+      "pauseLabel": "帮女主签合同"
     },
     "video_louxia3": {
       "type": "video",
