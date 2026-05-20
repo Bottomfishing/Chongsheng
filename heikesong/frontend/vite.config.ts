@@ -9,4 +9,21 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    host: true,
+    port: 5173,
+    hmr: {
+      protocol: process.env.NGROK_HTTPS === "1" ? "wss" : "ws",
+      host: process.env.NGROK_HOST || undefined,
+      clientPort: process.env.NGROK_CLIENT_PORT ? Number(process.env.NGROK_CLIENT_PORT) : undefined,
+    },
+    allowedHosts: true,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8001",
+        changeOrigin: true,
+        changeOrigin: true,
+      },
+    },
+  },
 });

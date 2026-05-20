@@ -10,6 +10,12 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: "/login",
+      name: "login",
+      component: () => import("@/views/LoginView.vue"),
+      meta: { transition: "page-slide", public: true },
+    },
+    {
       path: "/",
       name: "home",
       component: HomeView,
@@ -46,6 +52,13 @@ const router = createRouter({
       meta: { transition: "page-slide" },
     },
   ],
+});
+
+router.beforeEach((to) => {
+  const token = localStorage.getItem("auth_token");
+  if (!to.meta.public && !token) {
+    return { name: "login", query: { redirect: to.fullPath } };
+  }
 });
 
 export default router;

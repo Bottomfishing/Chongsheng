@@ -1,5 +1,6 @@
 <template>
   <div class="app-shell">
+    <MusicPlayer />
     <RouterView v-slot="{ Component, route }">
       <Transition
         :name="route.meta.transition as string || 'page-slide'"
@@ -13,6 +14,7 @@
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
+import MusicPlayer from "@/components/MusicPlayer.vue";
 </script>
 
 <style>
