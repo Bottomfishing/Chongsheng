@@ -3,7 +3,7 @@
   "nodes": {
     "video_caochang1": {
       "type": "video",
-      "src": "/videos/操场1/操场1-1.mp4",
+      "src": "videos/操场1/操场1-1.mp4",
       "title": "2016济宁学院操场",
       "description": "2016年9月，短视频风口前夜。",
       "next": "video_caochang2",
@@ -13,7 +13,7 @@
     },
     "video_caochang2": {
       "type": "video",
-      "src": "/videos/操场2/操场2-1.mp4",
+      "src": "videos/操场2/操场2-1.mp4",
       "title": "操场·运动会现场",
       "next": "video_caochang3",
       "lotteryAt": 16,
@@ -25,19 +25,19 @@
     },
     "video_caochang_youmo": {
       "type": "video",
-      "src": "/videos/操场幽默/操场幽默-1.mp4",
+      "src": "videos/操场幽默/操场幽默-1.mp4",
       "title": "操场·幽默解围",
       "next": "video_caochang3"
     },
     "video_caochang_wenrou": {
       "type": "video",
-      "src": "/videos/操场温柔/操场温柔-1.mp4",
+      "src": "videos/操场温柔/操场温柔-1.mp4",
       "title": "操场·温柔护短",
       "next": "video_caochang3"
     },
     "video_caochang3": {
       "type": "video",
-      "src": "/videos/操场3/操场3-1.mp4",
+      "src": "videos/操场3/操场3-1.mp4",
       "title": "操场·后续",
       "next": "video_louxia1",
       "pauseLabel": "打斗",
@@ -45,7 +45,7 @@
     },
     "video_louxia1": {
       "type": "video",
-      "src": "/videos/楼下1/楼下1-1.mp4",
+      "src": "videos/楼下1/楼下1-1.mp4",
       "title": "宿舍楼下·夜",
       "next": "video_louxia2",
       "pauseAt": 4,
@@ -53,7 +53,7 @@
     },
     "video_louxia2": {
       "type": "video",
-      "src": "/videos/楼下2/楼下2-1.mp4",
+      "src": "videos/楼下2/楼下2-1.mp4",
       "title": "宿舍楼下·交谈",
       "next": "video_louxia3",
       "pauseAt": 9,
@@ -61,7 +61,7 @@
     },
     "video_louxia3": {
       "type": "video",
-      "src": "/videos/楼下3/楼下3-1.mp4",
+      "src": "videos/楼下3/楼下3-1.mp4",
       "title": "宿舍楼下·约定",
       "next": "video_louxia4",
       "pauseAt": 12,
@@ -70,13 +70,13 @@
     },
     "video_louxia4": {
       "type": "video",
-      "src": "/videos/楼下4/楼下4-1.mp4",
+      "src": "videos/楼下4/楼下4-1.mp4",
       "title": "宿舍楼下·出发",
       "next": "video_paomian1"
     },
     "video_paomian1": {
       "type": "video",
-      "src": "/videos/泡面1/泡面1-1.mp4",
+      "src": "videos/泡面1/泡面1-1.mp4",
       "title": "泡面·深夜",
       "next": "video_paomian2",
       "pauseAt": 15,
@@ -85,13 +85,13 @@
     },
     "video_paomian2": {
       "type": "video",
-      "src": "/videos/泡面2/泡面2-1.mp4",
+      "src": "videos/泡面2/泡面2-1.mp4",
       "title": "泡面·续",
       "next": "video_xiyang1"
     },
     "video_xiyang1": {
       "type": "video",
-      "src": "/videos/夕阳1/夕阳1-1.mp4",
+      "src": "videos/夕阳1/夕阳1-1.mp4",
       "title": "夕阳·黄昏",
       "next": "choice_xiyang",
       "holdOnEnd": true,
@@ -118,19 +118,19 @@
     },
     "video_xiyang_a": {
       "type": "video",
-      "src": "/videos/夕阳选a安慰/夕阳选a安慰-1.mp4",
+      "src": "videos/夕阳选a安慰/夕阳选a安慰-1.mp4",
       "title": "夕阳·安慰",
       "next": "video_shoushiwu1"
     },
     "video_xiyang_b": {
       "type": "video",
-      "src": "/videos/夕阳选b不理/夕阳选b不理-1.mp4",
+      "src": "videos/夕阳选b不理/夕阳选b不理-1.mp4",
       "title": "夕阳·不理",
       "next": "video_shoushiwu1"
     },
     "video_shoushiwu1": {
       "type": "video",
-      "src": "/videos/手势舞1/手势舞1-1.mp4",
+      "src": "videos/手势舞1/手势舞1-1.mp4",
       "title": "手势舞·练习",
       "next": "video_shoushiwu_end",
       "pauseAt": 2,
@@ -139,7 +139,7 @@
     },
     "video_shoushiwu_end": {
       "type": "video",
-      "src": "/videos/手势舞结束/手势舞结束-1.mp4",
+      "src": "videos/手势舞结束/手势舞结束-1.mp4",
       "title": "手势舞·结束",
       "next": "ending_high"
     },

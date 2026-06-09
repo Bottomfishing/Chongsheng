@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { RouterLink, useRouter } from "vue-router";
+import { assetPath } from "@/utils/asset";
 
 const router = useRouter();
 
@@ -27,19 +28,19 @@ const acts = [
   {
     label: "第一幕",
     title: "穿越入局·命运初遇",
-    img: "/images/录像厅.jpg",
+    img: assetPath("images/录像厅.jpg"),
     startNode: "video_caochang1",
   },
   {
     label: "第二幕",
     title: "创业之路·暗流涌动",
-    img: "/images/网吧.jpg",
+    img: assetPath("images/网吧.jpg"),
     startNode: "video_xiyang1",
   },
   {
     label: "第三幕",
     title: "巅峰对决·直播PK定胜负",
-    img: "/images/舞厅.jpg",
+    img: assetPath("images/舞厅.jpg"),
     startNode: "video_shoushiwu1",
   },
 ];

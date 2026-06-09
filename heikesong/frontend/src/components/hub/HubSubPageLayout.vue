@@ -110,7 +110,7 @@ defineProps<{
       transparent 35%,
       rgba(139, 90, 43, 0.07) 100%
     ),
-    url("/images/bg-vintage.jpg") center / cover no-repeat;
+    var(--asset-bg-vintage) center / cover no-repeat;
   background-blend-mode: overlay, soft-light;
   opacity: var(--hub-vintage-overlay, 0.38);
 }
@@ -331,7 +331,7 @@ defineProps<{
   position: absolute;
   inset: -4px -6px -8px -6px;
   z-index: 0;
-  background: url(/images/border-frame.png) center / 100% 100% no-repeat;
+  background: var(--asset-border-frame) center / 100% 100% no-repeat;
   opacity: 0.9;
   filter: sepia(0.1) saturate(0.95);
   pointer-events: none;

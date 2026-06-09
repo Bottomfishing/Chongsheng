@@ -1,8 +1,8 @@
 import type { SendMessagePayload, SoulTalkApi } from "@/types/soulTalk";
 import { getDigitalHuman } from "@/data/digitalHumans";
 
-const BASE_URL = "https://api.ltoken.shop/v1";
-const API_KEY = "sk-5FQt8VAn2DXDRTsgQm8MeyJJG9Lh4rpjuE5bHTxSLOiUhgjB";
+const BASE_URL = import.meta.env.VITE_SOUL_TALK_BASE_URL?.trim() || "";
+const API_KEY = import.meta.env.VITE_SOUL_TALK_API_KEY?.trim() || "";
 
 const mockReplies: Record<string, string[]> = {
   "niu-tianzhen": [
@@ -30,6 +30,9 @@ const mockReplies: Record<string, string[]> = {
 export class RealSoulTalkApi implements SoulTalkApi {
   async sendMessage(payload: SendMessagePayload): Promise<string> {
     const { characterId, message, history } = payload;
+    if (!BASE_URL || !API_KEY) {
+      return new MockSoulTalkApi().sendMessage(payload);
+    }
     
     try {
       const response = await fetch(`${BASE_URL}/chat/completions`, {
@@ -115,4 +118,5 @@ export class MockSoulTalkApi implements SoulTalkApi {
   }
 }
 
-export const soulTalkApi: SoulTalkApi = new RealSoulTalkApi();
+export const soulTalkApi: SoulTalkApi =
+  BASE_URL && API_KEY ? new RealSoulTalkApi() : new MockSoulTalkApi();

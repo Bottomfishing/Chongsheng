@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { assetPath } from "@/utils/asset";
 
 const GAME_DURATION_MS = 45_000;
 const SPAWN_INTERVAL_MS = 700;
@@ -31,8 +32,8 @@ export class StreamRushScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("stream-rush-catcher", "/images/stream-rush-catcher.png");
-    this.load.image("stream-rush-drop", "/images/stream-rush-drop.png");
+    this.load.image("stream-rush-catcher", assetPath("images/stream-rush-catcher.png"));
+    this.load.image("stream-rush-drop", assetPath("images/stream-rush-drop.png"));
   }
 
   create() {

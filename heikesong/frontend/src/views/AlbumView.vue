@@ -54,6 +54,7 @@
 import { computed, ref } from "vue";
 import HubSubPageLayout from "@/components/hub/HubSubPageLayout.vue";
 import Album3DShowcase from "@/components/album/Album3DShowcase.vue";
+import { assetPath } from "@/utils/asset";
 
 interface PhotoItem {
   title: string;
@@ -80,20 +81,20 @@ const categories = ref<Category[]>([
         title: "初遇",
         date: "1995.03.15",
         tag: "主线",
-        src: "/images/album/chuyu.png",
+        src: assetPath("images/album/chuyu.png"),
       },
       {
         title: "相知",
         date: "1995.04.10",
         tag: "主线",
-        src: "/images/album/xiangzhi.jpg",
+        src: assetPath("images/album/xiangzhi.jpg"),
       },
       {
         title: "共赴",
         date: "1995.05.18",
         tag: "主线",
         size: "large",
-        src: "/images/album/gongfu.jpg",
+        src: assetPath("images/album/gongfu.jpg"),
       },
     ],
   },

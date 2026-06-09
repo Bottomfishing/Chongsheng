@@ -15,30 +15,38 @@
           >
             <img
               class="cover-layer cover-bg-layer"
-              src="/images/cover-layers/cover-bg.png"
+              :src="assetPath('images/cover-layers/cover-bg.png')"
               alt="重生之我在抖音当顶流"
             />
+            <div class="cover-ambience-layer" aria-hidden="true" />
             <img
               class="cover-layer cover-wheel-layer"
-              src="/images/cover-layers/cover-wheel.png"
+              :src="assetPath('images/cover-layers/cover-wheel.png')"
               alt=""
               aria-hidden="true"
             />
             <img
               class="cover-layer cover-title-layer"
-              src="/images/cover-layers/cover-title.png"
+              :src="assetPath('images/cover-layers/cover-title.png')"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="cover-arc-layer" aria-hidden="true" />
+            <img
+              class="cover-layer cover-foreground-layer"
+              :src="assetPath('images/cover-layers/cover-foreground.png')"
               alt=""
               aria-hidden="true"
             />
             <img
-              class="cover-layer cover-foreground-layer"
-              src="/images/cover-layers/cover-foreground.png"
+              class="cover-layer cover-start-layer"
+              :src="assetPath('images/cover-layers/cover-start.png')"
               alt=""
               aria-hidden="true"
             />
             <img
               class="cover-layer cover-border-layer"
-              src="/images/cover-layers/cover-border.png"
+              :src="assetPath('images/cover-layers/cover-border.png')"
               alt=""
               aria-hidden="true"
             />
@@ -220,7 +228,7 @@
             <h2 class="welcome-title">
               欢迎回来<span class="title-separator">
                 <img
-                  src="/images/logo.jpg"
+                  :src="assetPath('images/logo.jpg')"
                   alt="logo"
                   class="separator-logo"
                 /> </span
@@ -253,7 +261,7 @@
                   <div class="primary-icon-wrap">
                     <video
                       class="primary-icon-video"
-                      src="/videos/制作GIF动图.mp4"
+                      :src="assetPath('videos/制作GIF动图.mp4')"
                       autoplay
                       loop
                       muted
@@ -448,6 +456,7 @@ import HomeAmbience from "@/components/home/HomeAmbience.vue";
 import RebirthManualPortal from "@/components/home/RebirthManualPortal.vue";
 import HomeSettingsPanel from "@/components/home/HomeSettingsPanel.vue";
 import { appSettings } from "@/utils/settings";
+import { assetPath } from "@/utils/asset";
 
 const route = useRoute();
 const isHomePage = computed(() => route.name === "home");
@@ -513,10 +522,10 @@ function handleStartBtnMove(e: MouseEvent) {
   const ny = (y / rect.height - 0.5) * 2;
   el.style.setProperty("--mx", `${x}px`);
   el.style.setProperty("--my", `${y}px`);
-  el.style.setProperty("--px", `${nx * -18}px`);
-  el.style.setProperty("--py", `${ny * -14}px`);
-  el.style.setProperty("--rx", `${ny * -3.2}deg`);
-  el.style.setProperty("--ry", `${nx * 4.2}deg`);
+  el.style.setProperty("--px", `${nx * -28}px`);
+  el.style.setProperty("--py", `${ny * -22}px`);
+  el.style.setProperty("--rx", `${ny * -4.8}deg`);
+  el.style.setProperty("--ry", `${nx * 6.4}deg`);
   el.style.setProperty("--shine-opacity", "1");
 }
 
@@ -1089,7 +1098,7 @@ defineExpose({
       rgba(180, 130, 80, 0.08),
       transparent 42%
     ),
-    url("/images/bg-vintage.jpg") center / cover no-repeat;
+    var(--asset-bg-vintage) center / cover no-repeat;
   background-blend-mode: overlay, normal, normal, soft-light;
   opacity: var(--hub-vintage-overlay, 0.4);
   animation: hub-warm-pulse 14s ease-in-out infinite;
@@ -2444,7 +2453,7 @@ defineExpose({
       rgba(180, 130, 80, 0.08),
       transparent 42%
     ),
-    url("/images/bg-vintage.jpg") center / cover no-repeat;
+    var(--asset-bg-vintage) center / cover no-repeat;
   background-blend-mode: overlay, normal, normal, soft-light;
   opacity: 0.42;
   animation: hub-warm-pulse 14s ease-in-out infinite;
@@ -3110,7 +3119,7 @@ defineExpose({
   position: absolute;
   inset: -4px -6px -8px -6px;
   z-index: 0;
-  background: url(/images/border-frame.png) center / 100% 100% no-repeat;
+  background: var(--asset-border-frame) center / 100% 100% no-repeat;
   opacity: 0.92;
   filter: sepia(0.12) saturate(0.95);
   pointer-events: none;
@@ -4893,6 +4902,7 @@ defineExpose({
   border-radius: 0;
   background: #100918;
   box-shadow: none;
+  isolation: isolate;
   perspective: 1200px;
   transform-style: preserve-3d;
   --mx: 50%;
@@ -4911,6 +4921,16 @@ defineExpose({
   will-change: transform;
 }
 
+.cover-ambience-layer,
+.cover-arc-layer {
+  position: absolute;
+  inset: -8%;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform, opacity, filter;
+  mix-blend-mode: screen;
+}
+
 .cover-bg-layer,
 .cover-title-layer,
 .cover-border-layer {
@@ -4926,54 +4946,224 @@ defineExpose({
     perspective(1200px)
     rotateX(calc(var(--rx) * 0.22))
     rotateY(calc(var(--ry) * 0.22))
-    translate3d(calc(var(--px) * 0.35), calc(var(--py) * 0.35), 0)
-    scale(1.065);
-  transition: transform 0.28s ease-out;
+    translate3d(calc(var(--px) * 0.35), calc(var(--py) * 0.35), -12px)
+    scale(1.05);
+  transition: transform 0.32s ease-out, filter 0.32s ease-out;
+  filter: saturate(1.06) contrast(1.07) brightness(1);
 }
 
 .cover-wheel-layer {
+  z-index: 2;
   left: 50%;
-  top: 42%;
-  width: min(54vw, 70vh);
+  top: 76%;
+  width: min(42vw, 58vh);
   max-width: 860px;
   aspect-ratio: 1;
   object-fit: contain;
-  opacity: 0.82;
+  opacity: 0.9;
   mix-blend-mode: screen;
   transform:
-    translate3d(calc(-50% + var(--px) * -0.08), calc(-50% + var(--py) * -0.08), 26px)
+    translate3d(calc(-50% + var(--px) * -0.08), calc(-50% + 34px + var(--py) * -0.08), 36px)
     rotate(0deg)
-    scale(1.08);
+    scale(1.02);
   transform-origin: 50% 50%;
   animation: cover-wheel-spin 38s linear infinite;
-  filter: saturate(1.12) brightness(1.05);
+  filter:
+    saturate(1.1)
+    brightness(1.04)
+    drop-shadow(0 0 18px rgba(255, 229, 153, 0.16));
+}
+
+.cover-ambience-layer {
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 232, 165, 0.24), transparent 12%),
+    radial-gradient(circle at 50% 42%, rgba(156, 90, 255, 0.2), transparent 24%),
+    radial-gradient(circle at 50% 63%, rgba(255, 214, 140, 0.12), transparent 34%),
+    conic-gradient(
+      from 180deg at 50% 44%,
+      rgba(255, 246, 209, 0) 0deg,
+      rgba(255, 241, 186, 0.12) 22deg,
+      transparent 35deg,
+      rgba(159, 101, 255, 0.14) 58deg,
+      transparent 74deg,
+      rgba(255, 241, 186, 0.12) 102deg,
+      transparent 121deg,
+      rgba(159, 101, 255, 0.13) 150deg,
+      transparent 171deg,
+      rgba(255, 241, 186, 0.14) 198deg,
+      transparent 220deg,
+      rgba(159, 101, 255, 0.12) 248deg,
+      transparent 276deg,
+      rgba(255, 241, 186, 0.1) 315deg,
+      transparent 360deg
+    );
+  opacity: 0.56;
+  filter: blur(0.65px) saturate(1.02);
+  transform: translate3d(calc(var(--px) * -0.18), calc(var(--py) * -0.16), 8px);
+  animation:
+    cover-ambience-rotate 58s linear infinite,
+    cover-ambience-pulse 8.5s ease-in-out infinite;
+}
+
+.cover-ambience-layer::before {
+  content: "";
+  position: absolute;
+  inset: 9% 12% 16%;
+  border: 1px solid rgba(255, 239, 191, 0.12);
+  border-radius: 50%;
+  box-shadow:
+    0 0 18px rgba(255, 225, 148, 0.08),
+    inset 0 0 14px rgba(255, 255, 255, 0.04);
+  opacity: 0.72;
+}
+
+.cover-ambience-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      74deg,
+      transparent 0 8.8%,
+      rgba(255, 244, 204, 0.12) 8.8% 9.05%,
+      transparent 9.05% 17.6%
+    ),
+    repeating-linear-gradient(
+      102deg,
+      transparent 0 10%,
+      rgba(171, 115, 255, 0.1) 10% 10.18%,
+      transparent 10.18% 20%
+    );
+  opacity: 0.42;
+  -webkit-mask-image: radial-gradient(circle at 50% 44%, #000 0 26%, transparent 66%);
+  mask-image: radial-gradient(circle at 50% 44%, #000 0 26%, transparent 66%);
+  animation: cover-beam-drift 26s linear infinite;
+}
+
+.cover-arc-layer {
+  z-index: 3;
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      transparent 0 31%,
+      rgba(255, 241, 188, 0.15) 31.4%,
+      transparent 35.5%
+    ),
+    radial-gradient(
+      circle at 50% 44%,
+      transparent 0 43%,
+      rgba(157, 103, 255, 0.13) 43.4%,
+      transparent 46.3%
+    ),
+    radial-gradient(
+      circle at 50% 44%,
+      transparent 0 55%,
+      rgba(255, 230, 168, 0.11) 55.5%,
+      transparent 58%
+    ),
+    conic-gradient(
+      from 0deg at 50% 44%,
+      rgba(255, 255, 255, 0) 0 6%,
+      rgba(255, 241, 188, 0.14) 8%,
+      transparent 11%,
+      rgba(157, 103, 255, 0.14) 17%,
+      transparent 22%,
+      rgba(255, 241, 188, 0.11) 27%,
+      transparent 33%,
+      rgba(157, 103, 255, 0.12) 39%,
+      transparent 45%,
+      rgba(255, 241, 188, 0.11) 50%,
+      transparent 57%,
+      rgba(157, 103, 255, 0.13) 63%,
+      transparent 69%,
+      rgba(255, 241, 188, 0.11) 74%,
+      transparent 80%,
+      rgba(157, 103, 255, 0.12) 86%,
+      transparent 92%,
+      rgba(255, 241, 188, 0.11) 97%,
+      transparent 100%
+    );
+  opacity: 0.28;
+  filter: blur(0.25px);
+  animation: cover-arc-rotate 64s linear infinite;
+}
+
+.cover-arc-layer::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -10% 0;
+  height: 30%;
+  background: radial-gradient(circle at 50% 100%, rgba(255, 221, 140, 0.24), transparent 70%);
+  opacity: 0.8;
 }
 
 .cover-title-layer {
-  z-index: 2;
+  z-index: 4;
   transform:
     perspective(1200px)
     rotateX(calc(var(--rx) * -0.12))
     rotateY(calc(var(--ry) * -0.12))
-    translate3d(calc(var(--px) * -0.18), calc(var(--py) * -0.16), 48px)
-    scale(1.045);
-  transition: transform 0.28s ease-out;
+    translate3d(calc(var(--px) * -0.16), calc(var(--py) * -0.14), 58px)
+    scale(0.98);
+  transition: transform 0.32s ease-out, filter 0.32s ease-out;
+  filter:
+    saturate(1.08)
+    brightness(1.02)
+    drop-shadow(0 0 14px rgba(255, 229, 158, 0.16));
+  animation: cover-title-breathe 7.5s ease-in-out infinite;
 }
 
 .cover-foreground-layer {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 3;
+  z-index: 5;
   width: 100%;
   height: auto;
-  transform: translate3d(0, 0, 64px) scale(1);
+  transform: translate3d(0, 0, 84px) scale(1);
   transform-origin: 50% 100%;
+  filter: drop-shadow(0 -1px 0 rgba(255, 238, 190, 0.06));
+  animation: cover-foreground-pulse 8s ease-in-out infinite;
+}
+
+.cover-start-layer {
+  left: 50%;
+  bottom: 10.2%;
+  z-index: 6;
+  width: clamp(150px, 17vw, 248px);
+  height: auto;
+  transform: translate3d(-50%, 0, 104px);
+  transition:
+    transform 0.28s ease,
+    filter 0.28s ease,
+    opacity 0.28s ease;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 234, 174, 0.24))
+    drop-shadow(0 0 24px rgba(106, 42, 179, 0.16));
 }
 
 .cover-border-layer {
-  z-index: 4;
-  transform: translate3d(0, 0, 90px);
+  z-index: 7;
+  transform: translate3d(0, 0, 120px);
+  animation: cover-border-glow 5.8s ease-in-out infinite;
+}
+
+.project-cover-card:hover .cover-start-layer,
+.project-cover-card:focus-within .cover-start-layer {
+  transform: translate3d(-50%, -18px, 104px) scale(1.08);
+  filter:
+    drop-shadow(0 0 20px rgba(255, 240, 190, 0.5))
+    drop-shadow(0 0 42px rgba(132, 69, 220, 0.34));
+}
+
+.project-cover-card:hover .cover-wheel-layer,
+.project-cover-card:focus-within .cover-wheel-layer {
+  opacity: 1;
+  filter:
+    saturate(1.18)
+    brightness(1.1)
+    drop-shadow(0 0 24px rgba(255, 229, 153, 0.24));
 }
 
 .project-cover-card::after {
@@ -4984,17 +5174,22 @@ defineExpose({
   background:
     radial-gradient(
       circle at var(--mx, 50%) var(--my, 50%),
-      rgba(255, 235, 145, 0.2),
-      rgba(255, 235, 145, 0.08) 12%,
-      transparent 32%
+      rgba(255, 240, 181, 0.34),
+      rgba(255, 235, 145, 0.12) 14%,
+      transparent 34%
     ),
-    linear-gradient(120deg, transparent 18%, rgba(255, 240, 170, 0.14) 44%, transparent 68%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), transparent 26%),
-    radial-gradient(circle at 50% 36%, rgba(0, 0, 0, 0.18), transparent 35%);
-  opacity: var(--shine-opacity, 0);
+    linear-gradient(
+      120deg,
+      transparent 18%,
+      rgba(255, 240, 170, 0.18) 44%,
+      transparent 68%
+    ),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), transparent 22%),
+    radial-gradient(circle at 50% 36%, rgba(0, 0, 0, 0.16), transparent 35%);
+  opacity: calc(var(--shine-opacity, 0) * 0.8);
   mix-blend-mode: screen;
-  transition: opacity 0.24s ease-out;
-  transform: translate3d(calc(var(--px, 0px) * -0.35), calc(var(--py, 0px) * -0.35), 28px);
+  transition: opacity 0.24s ease-out, transform 0.24s ease-out;
+  transform: translate3d(calc(var(--px, 0px) * -0.5), calc(var(--py, 0px) * -0.5), 28px);
   will-change: opacity, transform;
 }
 
@@ -5007,10 +5202,10 @@ defineExpose({
   background:
     radial-gradient(circle at 18% 22%, rgba(255, 230, 130, 0.12), transparent 18%),
     radial-gradient(circle at 78% 30%, rgba(190, 130, 255, 0.12), transparent 20%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.18), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.16));
-  opacity: 0.72;
-  transform: translate3d(calc(var(--px, 0px) * -0.6), calc(var(--py, 0px) * -0.5), 36px);
-  transition: transform 0.28s ease-out;
+    linear-gradient(90deg, rgba(0, 0, 0, 0.18), transparent 20%, transparent 80%, rgba(0, 0, 0, 0.14));
+  opacity: 0.56;
+  transform: translate3d(calc(var(--px, 0px) * -0.48), calc(var(--py, 0px) * -0.4), 36px);
+  transition: transform 0.28s ease-out, opacity 0.28s ease-out;
   will-change: transform;
 }
 
@@ -5053,30 +5248,30 @@ defineExpose({
 .project-cover-start {
   position: absolute;
   left: 50%;
-  bottom: 11.5%;
-  width: clamp(120px, 15vw, 260px);
-  height: clamp(44px, 5vw, 88px);
+  bottom: 10.2%;
+  width: clamp(150px, 17vw, 248px);
+  height: clamp(90px, 10vw, 144px);
   padding: 0;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: transparent;
   transform: translateX(-50%);
-  z-index: 5;
+  z-index: 8;
   cursor: pointer;
 }
 
 .project-cover-start::before {
   content: "";
   position: absolute;
-  inset: -14px -28px;
+  inset: -20px -36px;
   border-radius: inherit;
   opacity: 0;
   background:
-    radial-gradient(ellipse at center, rgba(255, 235, 150, 0.28), transparent 68%);
+    radial-gradient(ellipse at center, rgba(255, 235, 150, 0.36), transparent 68%);
   box-shadow:
-    0 0 22px rgba(255, 230, 150, 0.28),
-    inset 0 0 18px rgba(255, 240, 170, 0.12);
+    0 0 26px rgba(255, 230, 150, 0.34),
+    inset 0 0 20px rgba(255, 240, 170, 0.16);
   transition:
     opacity 0.22s ease,
     transform 0.22s ease;
@@ -5085,7 +5280,7 @@ defineExpose({
 .project-cover-start:hover::before,
 .project-cover-start:focus-visible::before {
   opacity: 1;
-  transform: scale(1.06);
+  transform: scale(1.14);
 }
 
 .project-cover-start:focus-visible {
@@ -5105,6 +5300,83 @@ defineExpose({
       translate3d(calc(-50% + var(--px) * -0.08), calc(-50% + var(--py) * -0.08), 26px)
       rotate(360deg)
       scale(1.08);
+  }
+}
+
+@keyframes cover-ambience-rotate {
+  from {
+    transform: translate3d(calc(var(--px) * -0.18), calc(var(--py) * -0.16), 8px) rotate(0deg);
+  }
+  to {
+    transform: translate3d(calc(var(--px) * -0.18), calc(var(--py) * -0.16), 8px) rotate(360deg);
+  }
+}
+
+@keyframes cover-ambience-pulse {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes cover-beam-drift {
+  from {
+    transform: translateX(-2%) rotate(0deg);
+  }
+  to {
+    transform: translateX(2%) rotate(360deg);
+  }
+}
+
+@keyframes cover-arc-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cover-title-breathe {
+  0%,
+  100% {
+    filter:
+      saturate(1.1)
+      brightness(1.04)
+      drop-shadow(0 0 18px rgba(255, 229, 158, 0.18));
+  }
+  50% {
+    filter:
+      saturate(1.18)
+      brightness(1.1)
+      drop-shadow(0 0 28px rgba(255, 229, 158, 0.3));
+  }
+}
+
+@keyframes cover-foreground-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 -1px 0 rgba(255, 238, 190, 0.08));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(255, 238, 190, 0.16));
+  }
+}
+
+@keyframes cover-border-glow {
+  0%,
+  100% {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 14px rgba(255, 231, 150, 0.16));
+  }
+  50% {
+    filter:
+      brightness(1.1)
+      drop-shadow(0 0 22px rgba(255, 231, 150, 0.26));
   }
 }
 

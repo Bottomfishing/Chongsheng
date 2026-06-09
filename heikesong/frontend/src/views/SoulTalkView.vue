@@ -301,7 +301,7 @@ onUnmounted(() => {
       transparent 35%,
       rgba(139, 90, 43, 0.07) 100%
     ),
-    url("/images/bg-vintage.jpg") center / cover no-repeat;
+    var(--asset-bg-vintage) center / cover no-repeat;
   background-blend-mode: overlay, soft-light;
   opacity: var(--hub-vintage-overlay, 0.38);
 }

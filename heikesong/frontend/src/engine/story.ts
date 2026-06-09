@@ -1,5 +1,6 @@
 import { clearRuntimeState, loadRuntimeState, saveRuntimeState } from "./storage";
 import type { ChoiceNode, RuntimeState, StoryDefinition, StoryNode } from "./types";
+import { assetPath } from "@/utils/asset";
 
 function createState(nodeId: string, choiceLog: RuntimeState["choiceLog"] = {}): RuntimeState {
   return {
@@ -16,7 +17,7 @@ export class StoryEngine {
   ) {}
 
   static async load(resumeState?: RuntimeState): Promise<StoryEngine> {
-    const response = await fetch("/story/story.json", { cache: "no-store" });
+    const response = await fetch(assetPath("story/story.json"), { cache: "no-store" });
     if (!response.ok) {
       throw new Error(`Failed to load story: ${response.status}`);
     }

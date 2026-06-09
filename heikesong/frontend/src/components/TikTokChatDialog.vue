@@ -103,8 +103,13 @@ const quickReplies = [
   '今天天气怎么样'
 ];
 
-const BASE_URL = 'https://api.ltoken.shop/v1';
-const API_KEY = 'sk-5FQt8VAn2DXDRTsgQm8MeyJJG9Lh4rpjuE5bHTxSLOiUhgjB';
+const localReplies = [
+  '我在呢～这台机器现在就是你的九十年代小宇宙。',
+  '今天适合大胆一点：先拍一条，再改一条，顶流都是试出来的。',
+  '给你一个主意：把老街、录像厅和抖音热梗混在一起，反差感会很强。',
+  '如果心里没底，就先走剧情模式，那里会把节奏带起来。',
+  '笑话来了：1995 年最大的流量密码是什么？答：你带来的手机。',
+];
 
 function closeDialog() {
   emit('close');
@@ -130,47 +135,19 @@ async function sendMessage() {
   scrollToBottom();
 
   try {
-    const response = await fetch(`${BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-v4-flash',
-        messages: [
-          {
-            role: 'system',
-            content: '你是"抖小音"，一个可爱活泼的AI助手。你的特点是：1) 说话轻松有趣，经常用表情符号 2) 乐于助人，会尽量帮助用户 3) 喜欢分享有趣的事情 4) 回答问题时简洁有趣。不要太啰嗦，保持对话轻松愉快。'
-          },
-          ...messages.value.slice(0, -1).map(m => ({
-            role: m.role,
-            content: m.content
-          }))
-        ]
-      })
-    });
-
-    const data = await response.json();
+    await new Promise((resolve) => setTimeout(resolve, 550 + Math.random() * 450));
     
     messages.value = messages.value.filter(m => !m.isTyping);
-    
-    if (data.choices && data.choices[0]) {
-      messages.value.push({
-        role: 'assistant',
-        content: data.choices[0].message.content
-      });
-    } else {
-      messages.value.push({
-        role: 'assistant',
-        content: '抱歉，我现在有点困惑，稍后再试试吧～'
-      });
-    }
+
+    messages.value.push({
+      role: 'assistant',
+      content: localReplies[Math.floor(Math.random() * localReplies.length)]
+    });
   } catch (error) {
     messages.value = messages.value.filter(m => !m.isTyping);
     messages.value.push({
       role: 'assistant',
-      content: '哎呀，网络好像不太稳定呢～要不稍后再试试？'
+      content: '我这边刚刚走神了，再发一次我继续陪你聊。'
     });
   }
 

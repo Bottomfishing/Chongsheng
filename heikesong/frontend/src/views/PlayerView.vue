@@ -71,7 +71,7 @@
       <Transition name="lottery-fade">
         <div v-if="lotteryVisible" class="lottery-overlay">
           <iframe
-            src="/lottery-game/index.html"
+            :src="assetPath('lottery-game/index.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -85,7 +85,7 @@
       <Transition name="lottery-fade">
         <div v-if="fightingGameVisible" class="lottery-overlay">
           <iframe
-            src="/fighting-game/index.html"
+            :src="assetPath('fighting-game/index.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -99,7 +99,7 @@
       <Transition name="lottery-fade">
         <div v-if="linkGameVisible" class="lottery-overlay">
           <iframe
-            src="/link-game/index.html"
+            :src="assetPath('link-game/index.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -113,7 +113,7 @@
       <Transition name="lottery-fade">
         <div v-if="signaturePadVisible" class="lottery-overlay">
           <iframe
-            src="/signature-pad/index.html"
+            :src="assetPath('signature-pad/index.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -127,7 +127,7 @@
       <Transition name="lottery-fade">
         <div v-if="pancakeGameVisible" class="lottery-overlay">
           <iframe
-            src="/pancake-game/index.html"
+            :src="assetPath('pancake-game/index.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -141,7 +141,7 @@
       <Transition name="lottery-fade">
         <div v-if="pageGameVisible" class="lottery-overlay">
           <iframe
-            src="/777.html"
+            :src="assetPath('777.html')"
             class="lottery-iframe"
             frameborder="0"
             allow="autoplay"
@@ -178,6 +178,7 @@ import EndingScene from "@/scenes/EndingScene.vue";
 import NarrationScene from "@/scenes/NarrationScene.vue";
 import VideoScene from "@/scenes/VideoScene.vue";
 import SaveLoadMenu from "@/components/SaveLoadMenu.vue";
+import { assetPath } from "@/utils/asset";
 
 const route = useRoute();
 

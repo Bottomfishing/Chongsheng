@@ -8,12 +8,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { assetPath } from "@/utils/asset";
 
 const playing = ref(false);
 let audio: HTMLAudioElement;
 
 onMounted(() => {
-  audio = new Audio("/music/yuai.mp3");
+  audio = new Audio(assetPath("music/yuai.mp3"));
   audio.loop = true;
   audio.volume = 0.4;
 });

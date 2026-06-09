@@ -1,13 +1,14 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import ChaptersView from "@/views/ChaptersView.vue";
 import PlayerView from "@/views/PlayerView.vue";
 import SoulTalkView from "@/views/SoulTalkView.vue";
 import AchievementView from "@/views/AchievementView.vue";
 import AlbumView from "@/views/AlbumView.vue";
+import { hasLocalSession } from "@/utils/localAuth";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/login",
@@ -55,8 +56,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem("auth_token");
-  if (!to.meta.public && !token) {
+  if (!to.meta.public && !hasLocalSession()) {
     return { name: "login", query: { redirect: to.fullPath } };
   }
 });

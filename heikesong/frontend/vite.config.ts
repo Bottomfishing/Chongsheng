@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
+  base: "./",
   plugins: [vue()],
   resolve: {
     alias: {
@@ -18,12 +19,5 @@ export default defineConfig({
       clientPort: process.env.NGROK_CLIENT_PORT ? Number(process.env.NGROK_CLIENT_PORT) : undefined,
     },
     allowedHosts: true,
-    proxy: {
-      "/api": {
-        target: "http://127.0.0.1:8001",
-        changeOrigin: true,
-        changeOrigin: true,
-      },
-    },
   },
 });

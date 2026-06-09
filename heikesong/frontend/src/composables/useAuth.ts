@@ -1,46 +1,40 @@
 import { ref, computed } from "vue";
-import { apiFetch } from "@/services/api";
+import {
+  clearLocalSession,
+  getActiveLocalPlayer,
+  loginLocalPlayer,
+  registerLocalPlayer,
+  type PublicPlayer,
+} from "@/utils/localAuth";
 
-const token = ref<string | null>(localStorage.getItem("auth_token"));
-const currentUser = ref<{ id: number; username: string } | null>(null);
-const isAuthenticated = computed(() => !!token.value);
+const activePlayer = getActiveLocalPlayer();
+const token = ref<string | null>(activePlayer ? String(activePlayer.id) : null);
+const currentUser = ref<PublicPlayer | null>(activePlayer);
+const isAuthenticated = computed(() => !!currentUser.value);
 
 export function useAuth() {
   async function login(username: string, password: string) {
-    const data = await apiFetch("/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-    });
-    token.value = data.access_token;
-    currentUser.value = data.user;
-    localStorage.setItem("auth_token", data.access_token);
+    const player = loginLocalPlayer(username, password);
+    currentUser.value = player;
+    token.value = String(player.id);
   }
 
   async function register(username: string, password: string) {
-    const data = await apiFetch("/register", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-    });
-    token.value = data.access_token;
-    currentUser.value = data.user;
-    localStorage.setItem("auth_token", data.access_token);
+    const player = registerLocalPlayer(username, password);
+    currentUser.value = player;
+    token.value = String(player.id);
   }
 
   async function fetchMe() {
-    try {
-      const data = await apiFetch("/me");
-      currentUser.value = data;
-    } catch {
-      token.value = null;
-      currentUser.value = null;
-      localStorage.removeItem("auth_token");
-    }
+    const player = getActiveLocalPlayer();
+    currentUser.value = player;
+    token.value = player ? String(player.id) : null;
   }
 
   function logout() {
     token.value = null;
     currentUser.value = null;
-    localStorage.removeItem("auth_token");
+    clearLocalSession();
   }
 
   return { token, currentUser, isAuthenticated, login, register, fetchMe, logout };

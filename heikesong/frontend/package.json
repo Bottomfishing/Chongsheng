@@ -3,9 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
+    "dev:app": "concurrently -k \"vite\" \"wait-on http://127.0.0.1:5173 && electron .\"",
     "build": "vue-tsc --noEmit && vite build",
+    "build:app": "npm run build && electron-builder",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -16,8 +19,34 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@vitejs/plugin-vue": "^5.2.4",
+    "concurrently": "^9.2.0",
+    "electron": "^36.5.0",
+    "electron-builder": "^26.8.1",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "vue-tsc": "^2.2.10"
+    "vue-tsc": "^2.2.10",
+    "wait-on": "^8.0.5"
+  },
+  "build": {
+    "appId": "com.chongsheng.rebirth",
+    "productName": "重生之我在抖音当顶流",
+    "asar": true,
+    "electronDist": "node_modules/electron/dist",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "executableName": "rebirth",
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": false,
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    }
   }
 }

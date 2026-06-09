@@ -1,4 +1,5 @@
 import type { DigitalHuman } from "@/types/soulTalk";
+import { assetPath } from "@/utils/asset";
 
 /**
  * 立绘/动画文件名与角色 id 不完全一致时，以 portrait / animation 字段为准。
@@ -19,8 +20,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#b86b7a",
     accentSoft: "rgba(184, 107, 122, 0.16)",
     symbol: "牛",
-    portrait: "/characters/a-ning.png",
-    animation: "/characters/animations/a-ning.mp4",
+    portrait: assetPath("characters/a-ning.png"),
+    animation: assetPath("characters/animations/a-ning.mp4"),
   },
   {
     id: "fei-qian",
@@ -35,8 +36,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#5a6b7a",
     accentSoft: "rgba(90, 107, 122, 0.16)",
     symbol: "费",
-    portrait: "/characters/li-tianzuo.png",
-    animation: "/characters/animations/li-tianzuo.mp4",
+    portrait: assetPath("characters/li-tianzuo.png"),
+    animation: assetPath("characters/animations/li-tianzuo.mp4"),
   },
   {
     id: "li-tianzuo",
@@ -51,8 +52,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#8b6914",
     accentSoft: "rgba(139, 105, 20, 0.14)",
     symbol: "李",
-    portrait: "/characters/fei-qian.png",
-    animation: "/characters/animations/fei-qian.mp4",
+    portrait: assetPath("characters/fei-qian.png"),
+    animation: assetPath("characters/animations/fei-qian.mp4"),
   },
   {
     id: "a-ning",
@@ -67,8 +68,8 @@ export const digitalHumans: DigitalHuman[] = [
     accent: "#c9a06e",
     accentSoft: "rgba(201, 160, 110, 0.16)",
     symbol: "宁",
-    portrait: "/characters/niu-tianzhen.png",
-    animation: "/characters/animations/niu-tianzhen.mp4",
+    portrait: assetPath("characters/niu-tianzhen.png"),
+    animation: assetPath("characters/animations/niu-tianzhen.mp4"),
   },
 ];
 

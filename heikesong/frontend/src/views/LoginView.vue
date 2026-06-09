@@ -2,6 +2,7 @@
   <div class="login-page">
     <div class="login-card">
       <h1 class="login-title">{{ isRegister ? "注册" : "登录" }}</h1>
+      <p class="login-subtitle">本地玩家档案，离线可玩</p>
 
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
@@ -58,9 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
+import { getActiveLocalPlayer } from "@/utils/localAuth";
 
 const router = useRouter();
 const route = useRoute();
@@ -72,6 +74,14 @@ const password = ref("");
 const confirmPassword = ref("");
 const error = ref("");
 const loading = ref(false);
+
+onMounted(() => {
+  const activePlayer = getActiveLocalPlayer();
+  if (activePlayer) {
+    const redirect = (route.query.redirect as string) || "/";
+    router.replace(redirect);
+  }
+});
 
 function toggleMode() {
   isRegister.value = !isRegister.value;
@@ -96,7 +106,7 @@ async function handleSubmit() {
     const redirect = (route.query.redirect as string) || "/";
     router.replace(redirect);
   } catch (e: any) {
-    error.value = e?.detail || "操作失败，请重试";
+    error.value = e?.message || e?.detail || "操作失败，请重试";
   } finally {
     loading.value = false;
   }
@@ -127,6 +137,13 @@ async function handleSubmit() {
   font-size: 1.6rem;
   margin: 0 0 1.8rem;
   color: #3d2914;
+}
+
+.login-subtitle {
+  margin: -1rem 0 1.4rem;
+  text-align: center;
+  color: #7b6a55;
+  font-size: 0.85rem;
 }
 
 .form-group {
